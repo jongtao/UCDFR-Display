@@ -92,7 +92,7 @@ void lcd_onoff()
 
 
 
-void lcd_draw()
+void lcd_draw(unsigned char lcdBuffer[2][8][64])
 {
 	LcdInputs Inputs;
 
@@ -138,33 +138,4 @@ void lcd_draw()
 
 } // lcd_draw()
 
-
-/*
-void lcd_set_page(unsigned char page)
-{
-	LCDInputs Page;
-
-	Page.db = 0xB8 + page;
-	Page.di = 0;
-	Page.rw = 0;
-	Page.cs_one = 1;
-	Page.cs_two = 1;
-
-	lcd_input(&Page);
-} // lcd_set_page()
-
-
-
-void lcd_set_address(unsigned char address)
-{
-	LCDInputs Address;
-
-	Address.db = 0x70 & address;
-	Address.di = 0;
-	Address.rw = 0;
-	Address.cs_one = 1;
-	Address.cs_two = 1;
-
-} // lcd_set_address()
-*/
 

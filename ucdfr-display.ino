@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "lcd.h"
+#include "graphics.h"
 
 
 
@@ -16,6 +17,8 @@ void setup()
 
 void loop()
 {
+	
+	unsigned char lcdBuffer[2][8][64];
 	LcdInputs Inputs;
 
 	Inputs.di = 0;
@@ -30,7 +33,7 @@ void loop()
 		for(j=0; j<64; j++)
 			lcdBuffer[0][i][j] = 0xFF;
 
-	lcd_draw();
+	lcd_draw(lcdBuffer);
 	delay(3000);
 
 	//for(;;);

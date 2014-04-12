@@ -25,7 +25,6 @@ typedef struct
 	unsigned char di, rw, db, cs_one, cs_two;
 } LcdInputs;
 
-unsigned char lcdBuffer[2][8][64];
 
 void lcd_db_shift(unsigned char value);
 
@@ -37,6 +36,7 @@ void lcd_init();
 
 void lcd_onoff();
 
+void lcd_draw(unsigned char lcdBuffer[2][8][62]);
 
 /*
 void lcd_set_page(unsigned char page);

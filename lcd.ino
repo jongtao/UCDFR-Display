@@ -1,9 +1,9 @@
 #include <lcd.h>
 
 
-void lcd_db_shift(unsigned short value)
+void lcd_db_shift(unsigned char value)
 {
-	for(short i=0; i<8; i++)
+	for(unsigned char i=0; i<8; i++)
 	{
 		digitalWrite(DB_DATA, 0x1 & value);
 		digitalWrite(DB_CLK, 0);
@@ -36,7 +36,7 @@ void lcd_clear()
 {
 	LcdInputs Page, Blank;
 
-	Page.db = 0xB8;
+	Page.db = PAGE_COMMAND;
 	Page.di = 0;
 	Page.rw = 0;
 	Page.cs_one = 1;
@@ -48,18 +48,99 @@ void lcd_clear()
 	Blank.cs_one = 1;
 	Blank.cs_two = 1;
 
-	for(short i=0; i<8; i++)
+	for(unsigned char i=0; i<8; i++)
 	{
 		lcd_input(&Page);
 		Page.db++;
 
-		for(short j=0; j<128; j++)
+		for(unsigned char j=0; j<128; j++)
 			lcd_input(&Blank);
 	} //for i
+
+	Page.db = ADDRESS_COMMAND;
+	lcd_input(&Page); // set address to 0
 } // lcd_clear()
 
+
+
+void lcd_init()
+{
+	pinMode(RST, OUTPUT);
+	pinMode(DI, OUTPUT);
+	pinMode(RW, OUTPUT);
+	pinMode(E, OUTPUT);
+	pinMode(DB_DATA, OUTPUT);
+	pinMode(DB_CLK, OUTPUT);
+	pinMode(CS_ONE, OUTPUT);
+	pinMode(CS_TWO, OUTPUT);
+
+	digitalWrite(RST, 1);
+} // lcd_init()
+
+
+
+void lcd_onoff()
+{
+	LcdInputs Inputs;
+	Inputs.db = ONOFF_COMMAND; // Toggle on/off
+	Inputs.di = 0;
+	Inputs.rw = 0;
+	Inputs.cs_one = 1;
+	Inputs.cs_two = 1;
+	lcd_input(&Inputs);
+} // lcd_onoff()
+
+
+
+void lcd_draw()
+{
+	LcdInputs Inputs;
+
+	Inputs.db = ADDRESS_COMMAND; // address = 0
+	Inputs.di = 0;
+	Inputs.rw = 0;
+	Inputs.cs_one = 1;
+	Inputs.cs_two = 1;
+	lcd_input(&Inputs); // Set address to zero
+
+	// write
+	for(unsigned char page=0; page<8; page++)
+	{
+		Inputs.di = 0;
+		Inputs.db = PAGE_COMMAND + page;
+		Inputs.cs_one = 1;
+		Inputs.cs_two = 1;
+		lcd_input(&Inputs);
+		Inputs.di = 1;
+
+		for(unsigned char cs=0; cs<2; cs++)
+		{
+			if(cs)
+			{
+				Inputs.cs_one = 1;
+				Inputs.cs_two = 0;
+			}
+			else
+			{
+				Inputs.cs_one = 0;
+				Inputs.cs_two = 1;
+			}// if cs
+
+			for(unsigned char column=0; column<64; column++)
+			{
+				Inputs.db = lcdBuffer[cs][page][column];
+				lcd_input(&Inputs);
+				//delay(10);
+			} // for column
+		} // for cs
+	} // for page
+
+
+} // lcd_draw()
+
+
 /*
-void lcd_set_page(unsigned short page)
+void lcd_set_page(unsigned char page)
 {
 	LCDInputs Page;
 
@@ -74,7 +155,7 @@ void lcd_set_page(unsigned short page)
 
 
 
-void lcd_set_address(unsigned short address)
+void lcd_set_address(unsigned char address)
 {
 	LCDInputs Address;
 

@@ -34,7 +34,7 @@ void lcd_init();
 
 void lcd_onoff();
 
-void lcd_draw(unsigned char lcdBuffer[2][8][62]);
+void lcd_draw(unsigned char lcdBuffer[2][8][64]);
 
 #endif
 

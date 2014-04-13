@@ -5,29 +5,36 @@ void lcd_db_shift(unsigned char value)
 {
 	for(unsigned char i=0; i<8; i++)
 	{
-		digitalWrite(DB_DATA, 0x1 & value);
-		digitalWrite(DB_CLK, 0);
-		digitalWrite(DB_CLK, 1);
+		PORTB &= ~(1 << 1);
+		PORTB |= ((1 & value) << 1);	// Push bit to DB_DATA
+		PORTB &= ~(1 << 2);						// DB_CLK 0
+		PORTB |= (1 << 2);						// DB_CLK 1
 		value >>= 1;
 	} // for i
 
-	digitalWrite(DB_CLK, 0);
+	PORTB &= ~(1 << 2);							// DB_CLK 0
 } // lcd_clearDB()
 
 
 
 void lcd_input(LcdInputs* Inputs)
 {
-		digitalWrite(E, 0);
+	PORTB &= ~(1);								// E 0
 
-		digitalWrite(DI, Inputs->di);
-		digitalWrite(RW, Inputs->rw);
-		lcd_db_shift(Inputs->db);
-		digitalWrite(CS_ONE, Inputs->cs_one);
-		digitalWrite(CS_TWO, Inputs->cs_two);
-		
-		digitalWrite(E, 1);
-		digitalWrite(E, 0);
+	PORTD	&= ~(1 << 6);
+	PORTD |= (Inputs->di << 6);		// DI di
+	PORTD	&= ~(1 << 7);
+	PORTD |= (Inputs->rw << 7);		// RW rw
+
+	lcd_db_shift(Inputs->db);
+
+	PORTB &= ~(1 << 3);
+	PORTB |= (Inputs->cs_one << 3);	// CS_ONE cs_one
+	PORTB &= ~(1 << 4);
+	PORTB |= (Inputs->cs_two << 4); // CS_TWO cs_two
+
+	PORTB |= (1);		// E 1
+	PORTB &= ~(1);	// E 0
 } // lcd_input()
 
 
@@ -65,16 +72,9 @@ void lcd_clear()
 
 void lcd_init()
 {
-	pinMode(RST, OUTPUT);
-	pinMode(DI, OUTPUT);
-	pinMode(RW, OUTPUT);
-	pinMode(E, OUTPUT);
-	pinMode(DB_DATA, OUTPUT);
-	pinMode(DB_CLK, OUTPUT);
-	pinMode(CS_ONE, OUTPUT);
-	pinMode(CS_TWO, OUTPUT);
-
-	digitalWrite(RST, 1);
+	DDRD = 0xC0; // enable pins 6-7
+	DDRB = 0x3F; // enable pins 8-13
+	PORTB |= (1 << 5); // RST 1
 } // lcd_init()
 
 
@@ -94,7 +94,7 @@ void lcd_onoff()
 
 void lcd_draw(unsigned char lcdBuffer[2][8][64])
 {
-	LcdInputs Inputs;
+	LcdInputs Inputs, Page;
 
 	Inputs.db = ADDRESS_COMMAND; // address = 0
 	Inputs.di = 0;
@@ -102,29 +102,23 @@ void lcd_draw(unsigned char lcdBuffer[2][8][64])
 	Inputs.cs_one = 1;
 	Inputs.cs_two = 1;
 	lcd_input(&Inputs); // Set address to zero
+	Inputs.di = 1;
 
-	// write
-	for(unsigned char page=0; page<8; page++)
+	Page.db = PAGE_COMMAND; // address = 0
+	Page.di = 0;
+	Page.rw = 0;
+	Page.cs_one = 1;
+	Page.cs_two = 1;
+
+	for(unsigned char page=0; page<8; page++) // Begin drawing
 	{
-		Inputs.di = 0;
-		Inputs.db = PAGE_COMMAND + page;
-		Inputs.cs_one = 1;
-		Inputs.cs_two = 1;
-		lcd_input(&Inputs);
-		Inputs.di = 1;
+		lcd_input(&Page);
+		Page.db++;
 
 		for(unsigned char cs=0; cs<2; cs++)
 		{
-			if(cs)
-			{
-				Inputs.cs_one = 1;
-				Inputs.cs_two = 0;
-			}
-			else
-			{
-				Inputs.cs_one = 0;
-				Inputs.cs_two = 1;
-			}// if cs
+			Inputs.cs_one = cs;
+			Inputs.cs_two = !cs;
 
 			for(unsigned char column=0; column<64; column++)
 			{
@@ -134,8 +128,6 @@ void lcd_draw(unsigned char lcdBuffer[2][8][64])
 			} // for column
 		} // for cs
 	} // for page
-
-
 } // lcd_draw()
 
 

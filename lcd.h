@@ -2,20 +2,18 @@
 #define LCD_H
 
 #include <Arduino.h>
-
-#define RST 6
-#define DI 7
-#define RW 8
-#define E 9
-#define DB_DATA 10
-#define DB_CLK 11
-#define CS_ONE 12
-#define CS_TWO 13
-
+/*
+#define DI      6
+#define RW      7
+#define E       8
+#define DB_DATA 9
+#define DB_CLK  10
+#define CS_ONE  11
+#define CS_TWO  12
+#define RST     13
+*/
 #define ONOFF_COMMAND 0x3F
-#define ADDRESS_MASK 0x3F
 #define ADDRESS_COMMAND 0x40
-#define PAGE_MASK 0x07
 #define PAGE_COMMAND 0xB8
 
 
@@ -38,10 +36,5 @@ void lcd_onoff();
 
 void lcd_draw(unsigned char lcdBuffer[2][8][62]);
 
-/*
-void lcd_set_page(unsigned char page);
-
-void lcd_set_address(unsigned char address);
-*/
 #endif
 

@@ -3,11 +3,14 @@
 
 #include <Arduino.h>
 
-typedef struct
+/*
+extern typedef struct
 {
 	unsigned char letters[26];
 } Character;
+*/
 
-unsigned char A;
+// bitmaps defined as 8 bits across in rows of the array
+unsigned char A[9] = {};
 
 #endif

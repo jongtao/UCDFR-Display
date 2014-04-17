@@ -49,48 +49,67 @@ void graphics_blit_char(unsigned char lcdBuffer[2][8][64],
 
 
 
+// CAUTION: beware for unsigned char range
 void graphics_blit(unsigned char lcdBuffer[2][8][64],
-	unsigned char x, unsigned char y, unsigned char *bitmap, unsigned char width,
-	unsigned char height)
+	unsigned char dstX, unsigned char dstY, unsigned char *bitmap,
+	unsigned char srcX, unsigned char srcY, unsigned char width,
+	unsigned char height, unsigned int rowLen)
 {
 	unsigned char page1, page2, cs, horizontal, i, j, k;
+	int indX, indY;
 
-	page1 = y / LCD_PAGES; // find page to start
-	k = y - LCD_PAGES * page1; // offset after page
+	rowLen = (rowLen- 1)/8 + 1;					// convert pixel length to elements
 
+	page1 = dstY / LCD_PAGES; 							// find page to start
+	k = dstY - LCD_PAGES * page1; 					// offset after page
 
 	for(j=0; j<height; j++)
 	{
-		page2 = (y + j) / LCD_PAGES; // compute new page
+		// Compute page
+		page2 = (dstY + j) / LCD_PAGES; 			// compute new page
 
-		if(page2 >= LCD_PAGES) // crop bottom if too low
+		if(page2 >= LCD_PAGES) 								// crop bottom if too low
 			return;
 
 		if(page1 != page2)
 		{
-			page1 = page2; // increment page
+			page1 = page2; 											// increment page
 			k=0;
 		} // if different page
-/* off set bitmap[j] according to width and height
+
+
+		// Compute Y index in terms of bitmap location
+		indY = (j + srcY)*rowLen;
+		//indY = (3)*rowLen;
+
+
+// off set bitmap[j] according to width and height
 		for(i=0; i<width; i++)
 		{
-			horizontal = i + x; // current (horizontal) pixel being drawn
-
+			horizontal = i + dstX;							 // horizontal location of pixel being drawn
+			
+			// Compute LCD width corrections
 			if(horizontal >= LCD_WIDTH)
 				break;
 
-			if(horizontal >= 64)
+			if(horizontal >= LCD_CS_WIDTH)
 			{
 				cs = 0;
-				horizontal -= 64;
+				horizontal -= LCD_CS_WIDTH;
 			} // if need to move to next CS
 			else
 				cs = 1;
 
+			
+			// Compute X index in terms of bitmap location
+			indX = (i + srcX)/8;
+
+		
 			lcdBuffer[cs][page2][horizontal] |=
-				(!!(bitmap[j] & (0x01 << w-1-i))) << k;
+				//(!!(bitmap[indY + 1] & (0x01 << (7 - (i + srcX)%8)))) << k; // BLIT
+				(!!(bitmap[indY + indX] & (0x01 << (7 - (i + srcX)%8)))) << k; // BLIT
 		} // for horizontal pixel in char
-*/
+
 		k++;
 
 	}// for j

@@ -58,14 +58,18 @@ while(1)
 
 	lcd_clear();
 */
-
 	graphics_clear_buffer(lcdBuffer);
 
+/*
 	for(;;)
 	{
 		graphics_blit_char(lcdBuffer, random(122), random(57), A);
 		lcd_draw(lcdBuffer);
 	}
+*/
+
+	graphics_blit(lcdBuffer, 0, 2, characters, 0, 0, 128, 8, 480);
+	lcd_draw(lcdBuffer);
 
 	for(;;); // stop
 

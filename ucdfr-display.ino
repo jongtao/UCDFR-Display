@@ -1,13 +1,13 @@
 #include <Arduino.h>
 #include "lcd.h"
 #include "graphics.h"
+#include <avr/eeprom.h>
 
 
 
 void setup()
 {
-	Serial.begin(9600);
-
+	//Serial.begin(9600);
 	lcd_init();
 	lcd_db_shift(0); // Clear DB 8 bit shift register
 	lcd_clear();
@@ -19,16 +19,14 @@ void setup()
 
 void loop()
 {
-	
-	unsigned char lcdBuffer[2][8][64];
-	unsigned char i, j, k;
+	uint8_t lcdBuffer[2][8][64], i, j, k;
 	unsigned long time;
 
 	LcdInputs Inputs;
 	Inputs.di = Inputs.rw = 0;
 	Inputs.cs_one = Inputs.cs_two = 1;
 
-/*
+/* Test buffer
 while(1)
 {
 	
@@ -58,9 +56,8 @@ while(1)
 
 	lcd_clear();
 */
-	graphics_clear_buffer(lcdBuffer);
 
-/*
+/* Random character
 	for(;;)
 	{
 		graphics_blit_char(lcdBuffer, random(122), random(57), A);
@@ -68,30 +65,19 @@ while(1)
 	}
 */
 
+/* Blit character
+	graphics_clear_buffer(lcdBuffer);
 	graphics_blit(lcdBuffer, 0, 2, characters, 0, 0, 128, 8, 480);
-	lcd_draw(lcdBuffer);
+	//lcd_draw(lcdBuffer);
+*/
 
+	graphics_clear_buffer(lcdBuffer);
+	graphics_blit(lcdBuffer, 0, 0, sae, 0, 0, 128, 57, 128);
+	delay(1);
+	lcd_draw(lcdBuffer);
 	for(;;); // stop
 
 	delay(3000);
 
-
-
-//for(;;);
-
-
-// Test Increments
-	for(;;)
-		for(i=0; i<8; i++)
-		{
-			Inputs.di = 0;
-			Inputs.db = PAGE_COMMAND + i;
-			lcd_input(&Inputs); // set page = 1
-
-			Inputs.di = 1;
-			Inputs.db= 0xFF;
-			lcd_input(&Inputs); // write data
-			//delay(200);
-		} // for i
 } // loop()
 

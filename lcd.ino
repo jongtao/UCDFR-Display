@@ -1,9 +1,11 @@
 #include <lcd.h>
 
 
-void lcd_db_shift(unsigned char value)
+
+void lcd_db_shift(uint8_t value)
 {
-	for(unsigned char i=0; i<8; i++)
+	uint8_t i;
+	for(i=0; i<8; i++)
 	{
 		PORTB &= ~(1 << 1);
 		PORTB |= ((1 & value) << 1);	// Push bit to DB_DATA
@@ -42,6 +44,7 @@ void lcd_input(LcdInputs* Inputs)
 void lcd_clear()
 {
 	LcdInputs Page, Blank;
+	uint8_t i, j;
 
 	Page.db = PAGE_COMMAND;
 	Page.di = 0;
@@ -55,12 +58,12 @@ void lcd_clear()
 	Blank.cs_one = 1;
 	Blank.cs_two = 1;
 
-	for(unsigned char i=0; i<8; i++)
+	for(i=0; i<8; i++)
 	{
 		lcd_input(&Page);
 		Page.db++;
 
-		for(unsigned char j=0; j<128; j++)
+		for(j=0; j<128; j++)
 			lcd_input(&Blank);
 	} //for i
 
@@ -92,8 +95,9 @@ void lcd_onoff()
 
 
 
-void lcd_draw(unsigned char lcdBuffer[2][8][64])
+void lcd_draw(uint8_t lcdBuffer[2][8][64])
 {
+	uint8_t page, cs, column;
 	LcdInputs Inputs, Page;
 
 	Inputs.db = ADDRESS_COMMAND; // address = 0
@@ -110,17 +114,17 @@ void lcd_draw(unsigned char lcdBuffer[2][8][64])
 	Page.cs_one = 1;
 	Page.cs_two = 1;
 
-	for(unsigned char page=0; page<8; page++) // Begin drawing
+	for(page=0; page<8; page++) // Begin drawing
 	{
 		lcd_input(&Page);
 		Page.db++;
 
-		for(unsigned char cs=0; cs<2; cs++)
+		for(cs=0; cs<2; cs++)
 		{
 			Inputs.cs_one = cs;
 			Inputs.cs_two = !cs;
 
-			for(unsigned char column=0; column<64; column++)
+			for(column=0; column<64; column++)
 			{
 				Inputs.db = lcdBuffer[cs][page][column];
 				lcd_input(&Inputs);

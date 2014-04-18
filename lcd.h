@@ -20,11 +20,11 @@
 
 typedef struct
 {
-	unsigned char di, rw, db, cs_one, cs_two;
+	uint8_t di, rw, db, cs_one, cs_two;
 } LcdInputs;
 
 
-void lcd_db_shift(unsigned char value);
+void lcd_db_shift(uint8_t value);
 
 void lcd_input(LcdInputs* Inputs);
 
@@ -34,7 +34,7 @@ void lcd_init();
 
 void lcd_onoff();
 
-void lcd_draw(unsigned char lcdBuffer[2][8][64]);
+void lcd_draw(uint8_t lcdBuffer[2][8][64]);
 
 #endif
 

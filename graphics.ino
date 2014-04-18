@@ -1,10 +1,10 @@
 #include "graphics.h"
 
-
-void graphics_blit_char(unsigned char lcdBuffer[2][8][64],
-	unsigned char x, unsigned char y, unsigned char character[8])
+/*
+void graphics_blit_char(uint8_t lcdBuffer[2][8][64],
+	uint8_t x, uint8_t y, uint8_t character[8])
 {
-	unsigned char page1, page2, cs, horizontal, i, j, k;
+	uint8_t page1, page2, cs, horizontal, i, j, k;
 
 	page1 = y / 8; // find page to start
 	k = y - 8*page1; // offset after page
@@ -47,25 +47,24 @@ void graphics_blit_char(unsigned char lcdBuffer[2][8][64],
 	}// for j
 } // graphics_blit_char()
 
+*/
 
-
-// CAUTION: beware for unsigned char range
-void graphics_blit(unsigned char lcdBuffer[2][8][64],
-	unsigned char dstX, unsigned char dstY, unsigned char *bitmap,
-	unsigned char srcX, unsigned char srcY, unsigned char width,
-	unsigned char height, unsigned int rowLen)
+// CAUTION: beware for uint8_t range
+void graphics_blit(uint8_t lcdBuffer[2][8][64],
+	uint8_t dstX, uint8_t dstY, uint8_t *bitmap,
+	uint8_t srcX, uint8_t srcY, uint8_t width,
+	uint8_t height, uint16_t rowLen)
 {
-	unsigned char page1, page2, cs, horizontal, i, j, k;
-	int indX, indY;
+	uint8_t page1, page2, cs, horizontal, i, j, k;
+	uint16_t indX, indY;
 
-	rowLen = (rowLen- 1)/8 + 1;					// convert pixel length to elements
+	rowLen = (rowLen- 1)/8 + 1;					// convert pixel length to elements (ceil)
 
 	page1 = dstY / LCD_PAGES; 							// find page to start
 	k = dstY - LCD_PAGES * page1; 					// offset after page
 
 	for(j=0; j<height; j++)
 	{
-		// Compute page
 		page2 = (dstY + j) / LCD_PAGES; 			// compute new page
 
 		if(page2 >= LCD_PAGES) 								// crop bottom if too low
@@ -77,54 +76,39 @@ void graphics_blit(unsigned char lcdBuffer[2][8][64],
 			k=0;
 		} // if different page
 
+		indY = (j + srcY)*rowLen;							// Compute Y index in terms of bitmap location
 
-		// Compute Y index in terms of bitmap location
-		indY = (j + srcY)*rowLen;
-		//indY = (3)*rowLen;
-
-
-// off set bitmap[j] according to width and height
 		for(i=0; i<width; i++)
 		{
-			horizontal = i + dstX;							 // horizontal location of pixel being drawn
-			
-			// Compute LCD width corrections
-			if(horizontal >= LCD_WIDTH)
-				break;
+			horizontal = i + dstX;							// horizontal location of pixel being drawn
+			cs = 1;
+			if(horizontal >= LCD_WIDTH) break;	// stop if out of screen
 
 			if(horizontal >= LCD_CS_WIDTH)
 			{
 				cs = 0;
 				horizontal -= LCD_CS_WIDTH;
 			} // if need to move to next CS
-			else
-				cs = 1;
 
-			
-			// Compute X index in terms of bitmap location
-			indX = (i + srcX)/8;
-
+			indX = (i + srcX)/8; 								// Compute X index in terms of bitmap location
 		
 			lcdBuffer[cs][page2][horizontal] |=
-				//(!!(bitmap[indY + 1] & (0x01 << (7 - (i + srcX)%8)))) << k; // BLIT
 				(!!(bitmap[indY + indX] & (0x01 << (7 - (i + srcX)%8)))) << k; // BLIT
 		} // for horizontal pixel in char
 
-		k++;
-
+		k++;																	// counts bits from top of page
 	}// for j
 } // graphics_blit_char()
 
 
 
 
-void graphics_clear_buffer(unsigned char lcdBuffer[2][8][64])
+void graphics_clear_buffer(uint8_t lcdBuffer[2][8][64])
 {
-	unsigned char i, j, k;
+	uint8_t i, j, k;
 
 	for(k=0; k<2; k++)
 		for(i=0; i<8; i++)
 			for(j=0; j<64; j++)
 				lcdBuffer[k][i][j] = 0x00;
-
 } // graphics_clear_buffer()

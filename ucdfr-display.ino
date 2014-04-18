@@ -1,13 +1,12 @@
 #include <Arduino.h>
 #include "lcd.h"
 #include "graphics.h"
-#include <avr/eeprom.h>
+#include <avr/progmem.h>
 
 
 
 void setup()
 {
-	//Serial.begin(9600);
 	lcd_init();
 	lcd_db_shift(0); // Clear DB 8 bit shift register
 	lcd_clear();
@@ -64,17 +63,40 @@ while(1)
 		lcd_draw(lcdBuffer);
 	}
 */
-
-/* Blit character
+uint8_t num;
+for(;;)
+{
+for(num = 0; num < 8; num++)
+{
 	graphics_clear_buffer(lcdBuffer);
-	graphics_blit(lcdBuffer, 0, 2, characters, 0, 0, 128, 8, 480);
-	//lcd_draw(lcdBuffer);
-*/
-
-	graphics_clear_buffer(lcdBuffer);
-	graphics_blit(lcdBuffer, 0, 0, sae, 0, 0, 128, 57, 128);
-	delay(1);
+	graphics_print(lcdBuffer, 0, 0,
+		"LIL'CHEW CHEW\nv2.2\nI've not been\nprogrammed for\nRegret <3 <3\n\n$ sudo kill ");
 	lcd_draw(lcdBuffer);
+	delay(1000);
+
+	graphics_clear_buffer(lcdBuffer);
+	graphics_print(lcdBuffer, 0, 0,
+		"LIL'CHEW CHEW\nv2.2\nI've not been\nprogrammed for\nRegret <3 <3\n\n$ sudo kill_");
+	lcd_draw(lcdBuffer);
+	delay(1000);
+}
+
+	graphics_clear_buffer(lcdBuffer);
+	graphics_blit(lcdBuffer, 0, 0, bitmapBigNum, 0, 0, 128, 56, 408);
+	lcd_draw(lcdBuffer);
+	delay(5000);
+	
+	graphics_clear_buffer(lcdBuffer);
+	graphics_blit(lcdBuffer, 0, 0, bitmapCharacters, 0, 0, 128, 8, 480);
+	lcd_draw(lcdBuffer);
+	delay(5000);
+
+	graphics_clear_buffer(lcdBuffer);
+	graphics_blit(lcdBuffer, 0, 0, bitmapSae, 0, 0, 128, 57, 128);
+	lcd_draw(lcdBuffer);
+	delay(5000);
+}
+
 	for(;;); // stop
 
 	delay(3000);

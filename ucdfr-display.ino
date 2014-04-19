@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include "lcd.h"
-#include "graphics.h"
 #include <avr/progmem.h>
 
+#include "lcd.h"
+#include "graphics.h"
 
 
 void setup()
@@ -15,91 +15,79 @@ void setup()
 
 
 
-
 void loop()
 {
-	uint8_t lcdBuffer[2][8][64], i, j, k;
-	unsigned long time;
-
-	LcdInputs Inputs;
-	Inputs.di = Inputs.rw = 0;
-	Inputs.cs_one = Inputs.cs_two = 1;
-
-/* Test buffer
-while(1)
-{
 	
+	uint8_t lcdBuffer[2][8][64];
+	uint8_t num;
+	char string[8];
 
-	// Test Black
-	for(k=0; k<2; k++)
-		for(i=0; i<8; i++)
-			for(j=0; j<64; j++)
-				lcdBuffer[k][i][j] = 0xFF;
-
+	graphics_clear_buffer(lcdBuffer);
+	sprintf(string, "%2d.%d", 64,2);
+	graphics_num(lcdBuffer, 0, 0, string);
+	graphics_print(lcdBuffer, 105, 20, "mph");
+	graphics_print(lcdBuffer, 16, 46,
+		"Temp: 40C (ok)\nTorque Bias: 60%");
 	lcd_draw(lcdBuffer);
-	//delay(1000);
-
-	// Test White
-	for(k=0; k<2; k++)
-		for(i=0; i<8; i++)
-			for(j=0; j<64; j++)
-				lcdBuffer[k][i][j] = 0x00;
-
-	time = millis();
-	lcd_draw(lcdBuffer);
-
-	time = millis() - time;
-	Serial.println(time);
-}
-	delay(1000);
-
-	lcd_clear();
-*/
-
-/* Random character
+	delay(3000);
+/*
 	for(;;)
 	{
-		graphics_blit_char(lcdBuffer, random(122), random(57), A);
-		lcd_draw(lcdBuffer);
-	}
+		get_inputs();
+		process_data();
+		put_outputs();
+		draw();
+	} // run loop
 */
-uint8_t num;
-for(;;)
-{
-for(num = 0; num < 8; num++)
-{
-	graphics_clear_buffer(lcdBuffer);
-	graphics_print(lcdBuffer, 0, 0,
-		"LIL'CHEW CHEW\nv2.2\nI've not been\nprogrammed for\nRegret <3 <3\n\n$ sudo kill ");
-	lcd_draw(lcdBuffer);
-	delay(1000);
+
+
+
+
+		for(num = 0; num < 5; num++)
+		{
+			graphics_clear_buffer(lcdBuffer);
+			graphics_print(lcdBuffer, 0, 0,
+				"LIL'CHEW CHEW\nv2.2\nI've not been\nprogrammed for\nRegret <3 <3\n\n$ sudo kill ");
+			lcd_draw(lcdBuffer);
+			delay(500);
+
+			graphics_clear_buffer(lcdBuffer);
+			graphics_print(lcdBuffer, 0, 0,
+				"LIL'CHEW CHEW\nv2.2\nI've not been\nprogrammed for\nRegret <3 <3\n\n$ sudo kill_");
+			lcd_draw(lcdBuffer);
+			delay(500);
+		}
 
 	graphics_clear_buffer(lcdBuffer);
-	graphics_print(lcdBuffer, 0, 0,
-		"LIL'CHEW CHEW\nv2.2\nI've not been\nprogrammed for\nRegret <3 <3\n\n$ sudo kill_");
 	lcd_draw(lcdBuffer);
-	delay(1000);
-}
-
-	graphics_clear_buffer(lcdBuffer);
-	graphics_blit(lcdBuffer, 0, 0, bitmapBigNum, 0, 0, 128, 56, 408);
+	graphics_blit(lcdBuffer, 0, 0, bitmapBigNum, 0, 0, 128, 40, 456);
 	lcd_draw(lcdBuffer);
-	delay(5000);
+	delay(3000);
 	
 	graphics_clear_buffer(lcdBuffer);
 	graphics_blit(lcdBuffer, 0, 0, bitmapCharacters, 0, 0, 128, 8, 480);
 	lcd_draw(lcdBuffer);
-	delay(5000);
+	delay(3000);
 
 	graphics_clear_buffer(lcdBuffer);
 	graphics_blit(lcdBuffer, 0, 0, bitmapSae, 0, 0, 128, 57, 128);
 	lcd_draw(lcdBuffer);
-	delay(5000);
-}
-
-	for(;;); // stop
-
 	delay(3000);
 
+for(char asdf=0;asdf<5;asdf++)
+	for(num = 0; num <= 100; num++)
+	{
+		graphics_clear_buffer(lcdBuffer);
+		sprintf(string, "%3d%%", num);
+		graphics_num(lcdBuffer, 0, 0, string);
+		graphics_print(lcdBuffer, 16, 46,
+			"BATTERY CRITICAL!");
+		lcd_draw(lcdBuffer);
+
+	}
+
 } // loop()
+
+
+
 

@@ -2,6 +2,8 @@
 #define LCD_H
 
 #include <Arduino.h>
+#include <avr/io.h>
+
 /*
 #define DI      6
 #define RW      7

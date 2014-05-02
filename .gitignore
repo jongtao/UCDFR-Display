@@ -1,1 +1,8 @@
+# VIM
+*.swp
 *.vim
+
+# Compiled
+*.o
+*.elf
+*.hex

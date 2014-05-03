@@ -1,4 +1,5 @@
 #include "lcd.h"
+#include <util/delay.h>
 
 
 
@@ -21,6 +22,7 @@ void lcd_db_shift(uint8_t value)
 
 void lcd_input(LcdInputs* Inputs)
 {
+	/*
 	PORTB &= ~(1);								// E 0
 
 	PORTD	&= ~(1 << 6);
@@ -37,6 +39,50 @@ void lcd_input(LcdInputs* Inputs)
 
 	PORTB |= (1);		// E 1
 	PORTB &= ~(1);	// E 0
+	*/
+
+	uint8_t temp_db = Inputs->db;
+
+	PORTF &= ~(1 << 2);						// E 0
+
+	PORTF	&= ~(1 << 4);
+	PORTF |= (Inputs->di << 4);		// DI di
+	PORTF	&= ~(1 << 3);
+	PORTF |= (Inputs->rw << 3);		// RW rw
+
+	// Begin Data
+
+	PORTF &= 0xFC;								// Clear DB0 to DB1
+	PORTE &= 0x3F;								// Clear DB2 to DB3
+	PORTB &= 0xF0;								// Clear DB4 to DB7
+
+	PORTF |= ((1 & temp_db) << 1);			// Push bits from DB0
+	temp_db >>= 1;
+	PORTF |= ((1 & temp_db) << 0);
+	temp_db >>= 1;
+
+	PORTE |= ((1 & temp_db) << 6);
+	temp_db >>= 1;
+	PORTE |= ((1 & temp_db) << 7);
+	temp_db >>= 1;
+
+	PORTB |= ((1 & temp_db) << 0);
+	temp_db >>= 1;
+	PORTB |= ((1 & temp_db) << 1);
+	temp_db >>= 1;
+	PORTB |= ((1 & temp_db) << 2);
+	temp_db >>= 1;
+	PORTB |= ((1 & temp_db) << 3);
+	// End Data
+
+	PORTB &= ~(1 << 4);
+	PORTB |= (Inputs->cs_one << 4);	// CS1 CS_one
+	PORTB &= ~(1 << 5);
+	PORTB |= (Inputs->cs_two << 5); // CS2 cs_two
+
+	PORTF |= (1 << 2);		// E 1
+	PORTF &= ~(1 << 2);		// E 0
+	
 } // lcd_input()
 
 
@@ -75,9 +121,10 @@ void lcd_clear()
 
 void lcd_init()
 {
-	DDRD = 0xC0; // enable pins 6-7
-	DDRB = 0x3F; // enable pins 8-13
-	PORTB |= (1 << 5); // RST 1
+	DDRB = 0x7F;	// enable PB0 to PB6
+	DDRE = 0xC0;	// enable PE6 to PE7
+	DDRF = 0x1F;	// enable PF0 to PF4
+	PORTB |= (1 << 6); // RST 1
 } // lcd_init()
 
 

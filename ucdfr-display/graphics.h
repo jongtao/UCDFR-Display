@@ -6,7 +6,12 @@
 #define LCD_PAGES 8
 #define LCD_CS_WIDTH 64
 
+
+
+#include <stdio.h>
 #include <avr/pgmspace.h>
+
+
 
 void graphics_blit(uint8_t lcdBuffer[2][8][64],
 	uint8_t dstX, uint8_t dstY, const uint8_t *bitmap,
@@ -20,6 +25,7 @@ void graphics_print(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 
 void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 	char* string);
+
 
 
 extern const uint8_t bitmapCharacters[480];

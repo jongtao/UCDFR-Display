@@ -3,39 +3,10 @@
 
 #include "lcd.h"
 #include "graphics.h"
+#include "engine.h"
 
-
-void get_inputs(){return;}
-void process_data(){return;}
-void put_outputs(){return;}
-void draw(){return;}
-
-
-
-void run_loop()
-{
-	uint8_t lcdBuffer[2][8][64];
-
-	char string[8];
-	graphics_clear_buffer(lcdBuffer);
-	sprintf(string, "%2d.%d", 64,2);
-	graphics_num(lcdBuffer, 0, 0, string);
-	graphics_print(lcdBuffer, 105, 20, "mph");
-	graphics_print(lcdBuffer, 16, 46,
-		"Temp: 40C (ok)\nTorque Bias: 60%");
-	lcd_draw(lcdBuffer);
-
-	for(;;)
-	{
-		get_inputs();
-		process_data();
-		put_outputs();
-		draw();
-	} // run loop
-
-
-
-/* DEMO
+/*
+// DEMO
 uint8_t num;
 for(;;)
 {
@@ -69,50 +40,27 @@ for(num = 0; num < 8; num++)
 	lcd_draw(lcdBuffer);
 	delay(5000);
 }
-*/
+
 } // loop()
-
-
-
-void start()
-{
-	lcd_init();
-	lcd_db_shift(0); // Clear DB 8 bit shift register
-	lcd_clear();
-	lcd_onoff();
-} // setup()
-
+*/
 
 
 int main()
 {
-	lcd_init();
-	//lcd_db_shift(0); // Clear DB 8 bit shift register
-	lcd_clear();
-	lcd_onoff();
-
 	uint8_t lcdBuffer[2][8][64];
+	Inputs inputs;
 
-	char string[8];
-	graphics_clear_buffer(lcdBuffer);
-	sprintf(string, "%2d.%d", 64,2);
-	graphics_num(lcdBuffer, 0, 0, string);
-	graphics_print(lcdBuffer, 105, 20, "mph");
-	graphics_print(lcdBuffer, 16, 46,
-		"Temp: 40C (ok)\nTorque Bias: 60%");
-	lcd_draw(lcdBuffer);
+	lcd_init();
+	lcd_onoff();
+	lcd_clear();
 
 	for(;;)
 	{
-		get_inputs();
-		process_data();
-		put_outputs();
-		draw();
+		engine_get_inputs(inputs);
+		engine_process_data(lcdBuffer);
+		engine_put_outputs();
+		lcd_draw(lcdBuffer);
 	} // run loop
-
-
-
-
 
 	return 0;
 } // main()

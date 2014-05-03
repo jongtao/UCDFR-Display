@@ -1,33 +1,40 @@
 CC=avr-gcc
-#MMCU=atmega328p
 MMCU=at90usb1286
 MMCU_CODE=usb1286
-#ARDCOREDIR=-I/usr/share/arduino/hardware/arduino/cores/arduino/
-#ARDPINDIR=-I/usr/share/arduino/hardware/arduino/variants/standard
-#ARDUINO=$(ARDCOREDIR) $(ARDPINDIR)
+OPTIMIZE=-O3
+WARN=-Wall
 
+
+
+# Rules
 
 all: ucdfrdisplay.hex
 
 ucdfrdisplay.hex: ucdfrdisplay.elf
 	avr-objcopy -j .text -j .data -O ihex ucdfrdisplay.elf ucdfrdisplay.hex
 
-ucdfrdisplay.elf: ucdfr-display.o lcd.o graphics.o
-	$(CC) -mmcu=$(MMCU) -Wall -Os -o $@ ucdfr-display.o lcd.o graphics.o
 
 
-ucdfr-display.o: ucdfr-display.c
-	$(CC) -Os -mmcu=$(MMCU) -c ucdfr-display.c
+ucdfrdisplay.elf: ucdfr-display.o lcd.o graphics.o engine.o
+	$(CC) $(OPTIMIZE) $(WARN) -mmcu=$(MMCU) -o $@ $^
+
+ucdfr-display.o: ucdfr-display.c lcd.h graphics.h engine.h
+	$(CC) $(OPTIMIZE) $(WARN) -mmcu=$(MMCU) -c $<
 
 lcd.o: lcd.c lcd.h
-	$(CC) -Os -mmcu=$(MMCU) -c lcd.c
+	$(CC) $(OPTIMIZE) $(WARN) -mmcu=$(MMCU) -c $<
 
 graphics.o: graphics.c graphics.h
-	$(CC) -Os -mmcu=$(MMCU) -c graphics.c
+	$(CC) $(OPTIMIZE) $(WARN) -mmcu=$(MMCU) -c $<
+
+engine.o: engine.c engine.h
+	$(CC) $(OPTIMIZE) $(WARN) -mmcu=$(MMCU) -c $<
+
+
 
 upload: ucdfrdisplay.hex
 	teensy_loader_cli -mmcu=at90usb1286 -v -w ucdfrdisplay.hex
-	#avrdude -c arduino -p $(MMCU_CODE) -Pusb -e -U flash:w:ucdfrdisplay.hex
+
 
 
 clean:

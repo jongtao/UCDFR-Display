@@ -1,6 +1,7 @@
 #include "graphics.h"
 
 
+
 // CAUTION: beware for uint8_t range
 void graphics_blit(uint8_t lcdBuffer[2][8][64],
 	uint8_t dstX, uint8_t dstY, const uint8_t *bitmap,
@@ -10,8 +11,8 @@ void graphics_blit(uint8_t lcdBuffer[2][8][64],
 	uint16_t page1, page2, cs, horizontal, i, j, k;
 	uint16_t indX, indY;
 
-	//rowLen = (rowLen- 1)/8 + 1;					// convert pixel length to elements (ceil)
-	rowLen = rowLen/8;					// convert pixel length to elements (ceil)
+	//rowLen = (rowLen- 1)/8 + 1;						// convert pixel length to elements (ceil)
+	rowLen = rowLen/8;											// convert pixel length to elements (ceil)
 
 	page1 = dstY / LCD_PAGES; 							// find page to start
 	k = dstY - LCD_PAGES * page1; 					// offset after page
@@ -109,7 +110,7 @@ void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 {
 	uint8_t i = 0;
 	uint8_t cursor = dstX;
-	uint8_t character;
+	//uint8_t character;
 
 	while(string[i])
 	{
@@ -153,7 +154,6 @@ void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 							if(string[i] == ' ')
 								cursor += 30; // space
 		i++;
-
 	} // while string
 } // graphics_num()
 

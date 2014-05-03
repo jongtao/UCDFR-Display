@@ -3,16 +3,6 @@
 #include <avr/io.h>
 
 /*
-#define DI      6
-#define RW      7
-#define E       8
-#define DB_DATA 9
-#define DB_CLK  10
-#define CS_ONE  11
-#define CS_TWO  12
-#define RST     13
-*/
-/*
 DI	PF4
 RW	PF3
 E		PF2

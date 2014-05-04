@@ -102,6 +102,9 @@ void lcd_init()
 	DDRE = 0xC0;				// enable PE6 to PE7
 	DDRF = 0x1F;				// enable PF0 to PF4
 	PORTB |= (1 << 6);	// RST 1
+
+	lcd_onoff();
+	lcd_clear();
 } // lcd_init()
 
 

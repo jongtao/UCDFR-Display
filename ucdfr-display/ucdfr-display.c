@@ -4,7 +4,7 @@
 #include "lcd.h"
 #include "graphics.h"
 #include "engine.h"
-
+#include "utilities.h"
 /*
 // DEMO
 uint8_t num;
@@ -49,17 +49,27 @@ int main()
 {
 	uint8_t lcdBuffer[2][8][64];
 	Inputs inputs;
+	unsigned long milliseconds_since = 0;
+	unsigned long milliseconds_current = 0;
 
 	lcd_init();
-	lcd_onoff();
-	lcd_clear();
+	engine_init();
+	utilities_init();
 
 	for(;;)
 	{
+
 		engine_get_inputs(inputs);
-		engine_process_data(lcdBuffer);
+		engine_process_data();
 		engine_put_outputs();
-		lcd_draw(lcdBuffer);
+
+ 		milliseconds_current = millis();
+		if(milliseconds_current - milliseconds_since > 100)
+		{
+			engine_graphics(lcdBuffer);
+			lcd_draw(lcdBuffer);
+			milliseconds_since = milliseconds_current;
+		}
 	} // run loop
 
 	return 0;

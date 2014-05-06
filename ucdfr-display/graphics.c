@@ -11,9 +11,7 @@ void graphics_blit(uint8_t lcdBuffer[2][8][64],
 	uint16_t page1, page2, cs, horizontal, i, j, k;
 	uint16_t indX, indY;
 
-	//rowLen = (rowLen- 1)/8 + 1;						// convert pixel length to elements (ceil)
 	rowLen = rowLen/8;											// convert pixel length to elements (ceil)
-
 	page1 = dstY / LCD_PAGES; 							// find page to start
 	k = dstY - LCD_PAGES * page1; 					// offset after page
 
@@ -49,8 +47,6 @@ void graphics_blit(uint8_t lcdBuffer[2][8][64],
 			lcdBuffer[cs][page2][horizontal] |=
 				(!!(pgm_read_byte_near(bitmap + indY + indX) &
 				(0x01 << (7 - (i + srcX)%8)))) << k; // BLIT
-			//lcdBuffer[cs][page2][horizontal] |=
-				//(!!(bitmap[indY + indX] & (0x01 << (7 - (i + srcX)%8)))) << k; // BLIT
 		} // for horizontal pixel in char
 
 		k++;																	// counts bits from top of page
@@ -121,6 +117,34 @@ void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 			cursor += 30;
 		} // if number
 		else
+			switch(string[i])
+			{
+				case '.': // decimal
+					graphics_blit(lcdBuffer, cursor - 14, dstY, bitmapBigNum,
+						320, 0, 32, 40, 456);
+					cursor += 4;
+					break;
+				case '-': // dash
+					graphics_blit(lcdBuffer, cursor, dstY, bitmapBigNum,
+						352, 0, 32, 40, 456);
+					cursor += 30;
+					break;
+				case '%': // percent
+					graphics_blit(lcdBuffer, cursor, dstY, bitmapBigNum,
+						384, 0, 32, 40, 456);
+					cursor += 30;
+					break;
+				case '!': // exclaimation
+					graphics_blit(lcdBuffer, cursor, dstY, bitmapBigNum,
+						416, 0, 32, 40, 456);
+					cursor += 30;
+					break;
+				case ' ': // space
+					cursor += 30;
+					break;
+			} // switch character in string
+		i++;
+/*
 			if(string[i] == '.')
 			{
 				graphics_blit(lcdBuffer, cursor - 14, dstY, bitmapBigNum,
@@ -153,7 +177,7 @@ void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 						else
 							if(string[i] == ' ')
 								cursor += 30; // space
-		i++;
+*/
 	} // while string
 } // graphics_num()
 

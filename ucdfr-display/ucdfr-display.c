@@ -5,6 +5,8 @@
 #include "graphics.h"
 #include "engine.h"
 #include "utilities.h"
+
+#include <util/atomic.h>
 /*
 // DEMO
 uint8_t num;
@@ -44,7 +46,7 @@ for(num = 0; num < 8; num++)
 } // loop()
 */
 
-
+//volatile Inputs inputs;
 int main()
 {
 	uint8_t lcdBuffer[2][8][64];
@@ -55,9 +57,11 @@ int main()
 	lcd_init();
 	engine_init();
 	utilities_init();
+	unsigned long last_rev = 0;
 
 	for(;;)
 	{
+
 
 		engine_get_inputs(inputs);
 		engine_process_data();
@@ -66,9 +70,11 @@ int main()
  		milliseconds_current = millis();
 		if(milliseconds_current - milliseconds_since > 100)
 		{
+			
 			engine_graphics(lcdBuffer);
 			lcd_draw(lcdBuffer);
 			milliseconds_since = milliseconds_current;
+
 		}
 	} // run loop
 

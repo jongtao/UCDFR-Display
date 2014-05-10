@@ -143,8 +143,8 @@ void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 					cursor += 30;
 					break;
 			} // switch character in string
-		i++;
-/*
+
+			/*
 			if(string[i] == '.')
 			{
 				graphics_blit(lcdBuffer, cursor - 14, dstY, bitmapBigNum,
@@ -177,7 +177,8 @@ void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 						else
 							if(string[i] == ' ')
 								cursor += 30; // space
-*/
+								*/
+		i++;
 	} // while string
 } // graphics_num()
 

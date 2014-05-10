@@ -9,7 +9,9 @@ B				PE1
 */
 
 #include <stdint.h>
+#include <stdio.h>
 #include "graphics.h"
+#include "utilities.h"
 
 
 

@@ -1,0 +1,153 @@
+#include "utilities.h"
+
+
+volatile Inputs inputs;
+volatile unsigned long timer1_millis = 0;
+unsigned long last_button;
+unsigned long last_rotate;
+
+
+ISR(TIMER1_COMPA_vect)
+{
+	timer1_millis++;
+	if(timer1_millis > (unsigned long)1000)
+		PORTD |=(1<<6);
+/*
+	if(!(timer1_millis % 5))
+	{
+		if(PIND & (1 << 0))
+			inputs.button = 1;
+		
+		if(!(PIND & (1 << 0)))
+			inputs.button = 0;
+
+		if(PIND & (1 << 1) && PINB & (1 << 7))
+			inputs.rotational_state = 0;
+		else
+		{
+
+			if(!(PIND & (1 << 1) || PINB & (1 << 7)) && !inputs.rotational_state)
+			{
+				inputs.angle_segment++;
+				inputs.rotational_state = 1;
+			}
+		}
+		*/
+
+/*
+		if(!(PIND & (1 << 1) || PINB & (1 << 7)))
+			inputs.angle_segment++;
+
+		if((PIND & (1 << 1) || PINB & (1 << 7)))
+			inputs.angle_segment--;
+	} // if check inputs
+*/
+
+
+} // ISR(TIMER1)
+
+
+
+ISR(INT0_vect)
+{
+	//inputs.button ^= 1;
+	//if((millis() - last_button) > 500)
+	//{
+			PORTD |= (1 << 6);
+			//PORTD &= ~(1 << 6);
+		if(PIND & (1 << 0))
+		{
+			inputs.button = 1;
+			PORTD |= (1 << 6);
+			PORTF |= (1 << 5);
+		}
+
+		if(!(PIND & (1 << 0)))
+		{
+			PORTD &= ~(1 << 6);
+			PORTF &= ~(1 << 5);
+			inputs.button = 0;
+		}
+		//last_button = millis();
+	//}
+	
+	EIFR = 0; 
+
+} // ISR(INT0) Button
+
+
+
+ISR(INT1_vect)
+{
+	//PORTD ^= (1 << 6);
+
+	//if(A&&B)
+		//angle_segment++;
+	//else
+		//angle_segment--;
+
+} // ISR(INT1) A pin
+
+
+
+void utilities_init()
+{
+	// Enable Input
+	DDRD &= ~(3);				// PD0 to PD1
+	DDRB &= ~(1 << 7);	// PB7
+
+	// Enable Input Pullup
+	PORTD	|= (3);				// PD0 to PD1
+	PORTB |= (1 << 7);	// PB7
+
+	//PCICR |= (1);				// Enable pin change interrupt
+	//PCMSK0 |= (3);			// PCIE0
+	EIMSK |= (3);
+
+	DDRF |= (1 << 5); // buzzer
+
+	// Timer interrupt
+	TCCR1B |= (1 << WGM12) | (1 << CS11);
+	OCR1AH = (CTC_MATCH_OVERFLOW >> 8);
+	OCR1AL = 0xFF & CTC_MATCH_OVERFLOW;
+	TIMSK1 |= (1 << OCIE1A);
+
+
+	// zero inputs
+	inputs.button = 0;
+	inputs.angle_segment = 0;
+	inputs.rotational_state = 0;
+
+	last_button = last_rotate = 0;
+
+	sei();							// Enable interrupts
+} // timer_init()
+
+
+
+unsigned long millis()
+{
+	unsigned long time = 0;;
+
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		time = timer1_millis;
+	} // ATOMIC FORCEON
+
+	return time;
+} // millis()
+
+
+
+Inputs get_inputs()
+{
+	Inputs tmp;
+
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		tmp = inputs;
+	} // ATOMIC FORCEON
+
+	return tmp;
+} // get_inputs()
+

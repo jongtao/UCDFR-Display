@@ -50,32 +50,32 @@ for(num = 0; num < 8; num++)
 int main()
 {
 	uint8_t lcdBuffer[2][8][64];
+	uint8_t usart_byte = 0;
 	Inputs inputs;
+	Data data;
+	
 	unsigned long milliseconds_since = 0;
 	unsigned long milliseconds_current = 0;
 
 	lcd_init();
 	engine_init();
 	utilities_init();
-	unsigned long last_rev = 0;
 
 	for(;;)
 	{
 
 
-		engine_get_inputs(inputs);
-		engine_process_data();
-		engine_put_outputs();
+		engine_get_inputs(&inputs, &usart_byte);
+		engine_logic(&data, &inputs, &usart_byte);
+		//engine_put_outputs();
 
  		milliseconds_current = millis();
 		if(milliseconds_current - milliseconds_since > 100)
 		{
-			
 			engine_graphics(lcdBuffer);
 			lcd_draw(lcdBuffer);
 			milliseconds_since = milliseconds_current;
-
-		}
+		} // update screen every 10th of a second
 	} // run loop
 
 	return 0;

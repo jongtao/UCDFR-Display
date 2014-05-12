@@ -7,6 +7,10 @@ volatile unsigned long timer1_millis = 0;
 volatile unsigned long last_button = 0;
 volatile unsigned long last_rev = 0;
 
+volatile uint8_t usart_queue[USART_QUEUE_LENGTH];
+volatile uint8_t usart_head = 0;
+volatile uint8_t usart_tail = 0;
+
 
 
 ISR(TIMER1_COMPA_vect)
@@ -18,10 +22,10 @@ ISR(TIMER1_COMPA_vect)
 
 ISR(INT0_vect)
 {
-	//inputs.button ^= 1;
-	if((millis() - last_button) > 1)
+	EIMSK ^= (1);
+
+	if((millis() - last_button) > 10)
 	{
-			//PORTD &= ~(1 << 6);
 		if(PIND & (1 << 0))
 		{
 			PORTD &= ~(1 << 6);
@@ -30,20 +34,14 @@ ISR(INT0_vect)
 
 		if(!(PIND & (1 << 0)) && !inputs.button)
 		{
-			PORTD |= (1 << 6);
 			inputs.button = 1;
 			inputs.num_button++;
-
-				PORTF |= (1 << 5);
-				_delay_ms(10);
-				PORTF &= ~(1 << 5);
-
 		} // ON
 
 		last_button = millis();
 	} // Debounce
-	
-	//EIFR = 0; 
+
+	EIMSK |= (1);
 } // ISR(INT0) Button
 
 
@@ -51,26 +49,42 @@ ISR(INT0_vect)
 ISR(INT1_vect)
 {
 	EIMSK ^= (2);
-	_delay_us(100);
-	//uint8_t B = !!(PINB&(1 << 7));
 
 	if(((millis() - last_rev) > 50))
 	{
 			if(!(PINB&(1<<7)))
 				inputs.detent--;
 			else
-					inputs.detent++;
+				inputs.detent++;
 		
 			last_rev = millis();
-	}
+	}// Debounce
 
 	EIMSK |= (2);
 } // ISR(INT1) A pin
 
 
 
+ISR(USART1_RX_vect)
+{
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		usart_queue[usart_tail++] = UDR1;
+
+		if(usart_tail >= USART_QUEUE_LENGTH) // roll queue
+			usart_tail = 0;
+
+		if(usart_head == usart_tail) // overwrite unread data if overflow
+			usart_head++;
+	}
+} // ISR(USART1) USART
+
+
+
 void utilities_init()
 {
+	CLKPR = 0x80, CLKPR = 0; // zero prescaler
+
 	// Enable Input
 	DDRD &= ~(3);				// PD0 to PD1
 	DDRB &= ~(1 << 7);	// PB7
@@ -79,23 +93,26 @@ void utilities_init()
 	PORTD	|= (3);				// PD0 to PD1
 	PORTB |= (1 << 7);	// PB7
 
-	//PCICR |= (1);				// Enable pin change interrupt
-	//PCMSK0 |= (3);			// PCIE0 PCIE1
-
+	// Input as external interrupts
 	EICRA |= (1 << ISC00) | (1 << ISC11);
 	EIMSK |= (3);
 
 	DDRF |= (1 << 5); // buzzer
 
 	// Timer interrupt
-	TCCR1B |= (1 << WGM12) | (1 << CS10);
+	TCCR1B |= (1 << WGM12) | (1 << CS11); // Prescale 8
 	OCR1A = CTC_COUNT;
 	TIMSK1 |= (1 << OCIE1A);
 
-
-	// zero inputs
+	// zero inputs struct
 	inputs.button = inputs.num_button = 0;
 	inputs.detent = 0;
+
+	// USART1
+	UBRR1H = (USART_BAUDRATE >> 8);					// Baudrate
+	UBRR1L = USART_BAUDRATE;
+	UCSR1C = (1 << UCSZ10) | (1 << UCSZ11); // 8-bit asynchronous no parity
+	UCSR1B = (1 << RXCIE1) | (1 << RXEN1) | (1 << TXEN1);		// Enable
 
 	sei();							// Enable interrupts
 } // timer_init()
@@ -127,4 +144,24 @@ Inputs get_inputs()
 
 	return tmp;
 } // get_inputs()
+
+
+
+uint8_t pop_usart()
+{
+	uint8_t popped_value;
+
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		if(usart_head == usart_tail) // queue is empty
+			return 0;
+
+		popped_value = usart_queue[usart_head++];
+
+		if(usart_head >= USART_QUEUE_LENGTH)
+			usart_head = 0;
+	}
+
+	return popped_value;
+} // pop_usart()
 

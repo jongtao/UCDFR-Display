@@ -7,7 +7,10 @@
 #include <util/delay.h>
 
 //#define F_CPU 16000000UL // 16 MHz
-#define CTC_COUNT ((F_CPU/1000)/8)
+#define CTC_COUNT (((F_CPU/1000)/8) - 1)
+#define USART_BAUD 9600
+#define USART_BAUDRATE ((F_CPU/(USART_BAUD * 16UL)) - 1)
+#define USART_QUEUE_LENGTH 64
 
 
 /* Rotary input
@@ -27,8 +30,23 @@ typedef struct
 } Inputs;
 
 
+
+/* Interrupts
+
+ISR(TIMER1_COMPA_vect); // Timer
+
+ISR(INT0_vect);					// Button
+ISR(INT1_vect);					// Rotary
+
+ISR(USART1_RX_vect); 		// USART
+
+*/
+
+
+
 void utilities_init();
 unsigned long millis();
 Inputs get_inputs();
+uint8_t pop_usart();
 
 #endif

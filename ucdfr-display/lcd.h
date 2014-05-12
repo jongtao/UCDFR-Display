@@ -2,7 +2,7 @@
 #define LCD_H
 #include <avr/io.h>
 
-/*
+/* For prototype
 DI	PF4
 RW	PF3
 E		PF2
@@ -17,6 +17,23 @@ DB7	PB3
 CS1	PB4
 CS2	PB5
 RST	PB6
+*/
+
+/* Actual
+DI	PB6
+RW	PB5
+E		PB4
+DB0	PB3
+DB1	PB2
+DB2 PB1
+DB3 PB0
+DB4 PE7
+DB5	PE6
+DB6 PF0
+DB7	PF1
+CS1	PF2
+CS2	PF3
+RST	PF4
 */
 
 

@@ -28,7 +28,7 @@ void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 	char* string);
 
 
-
+/* BITMAPS */
 extern const uint8_t bitmapCharacters[480];
 extern const uint8_t bitmapBigNum[2280];
 extern const uint8_t bitmapSae[912];

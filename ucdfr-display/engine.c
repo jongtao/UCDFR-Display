@@ -1,47 +1,31 @@
 #include "engine.h"
 
 
-//volatile Inputs inputs;
+
+
+
 
 void engine_init()
 {
 	DDRD |= (1 << 6); // LED TEST
-
-	// FIXME these inputs are depreciated.
-	// Enable input
-	DDRC &= ~(1); // PC0
-	DDRE &= ~(3); // PE0 to PE1
-
-	// Enable Pullup
-	PORTC |= (1); // Pullup PC0
-	PORTE |= (3);	// Pullup PE0 to PE1
-
-	//:w
-
-
 } // engine_init()
 
 
 
-void engine_get_inputs(Inputs inputs)
+void engine_get_inputs(Inputs *inputs, uint8_t *usart_byte)
 {
-	//FIXME depreciated Button
-	/*
-	if(PINC & (1))
-		PORTD |= (1 << 6);
-	else
-		PORTD &= ~(1 << 6);
-*/
-
-	//UART
-
-	
+	*inputs = get_inputs();
+	*usart_byte = pop_usart();
 } // engine_get_inputs()
 
 
 
-void engine_process_data()
+void engine_logic(Data *data, Inputs *inputs, uint8_t *usart_byte)
 {
+	// translate input to user intention
+	// traverse states
+	// write data to ram
+	// write data to eeprom
 } // engine_process_data()
 
 
@@ -65,13 +49,13 @@ void engine_graphics(uint8_t lcdBuffer[2][8][64])
 	
 	if(inputs.button)
 	{
-		graphics_print(lcdBuffer, 105, 20, "Button");
+		graphics_print(lcdBuffer, 64, 20, "Button");
 	}
-	//unsigned long time = millis();
+
 	sprintf(string,
 		"millis: %lu\nnum_buttons: %d\nrotations: %d\n",
-		millis(), inputs.num_button, inputs.revolutions);
+		millis(), inputs.num_button, inputs.detent);
+	
 	graphics_print(lcdBuffer, 0, 0, string);
-
 } // engine_graphics()
 

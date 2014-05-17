@@ -10,7 +10,8 @@
 #define CTC_COUNT (((F_CPU/1000)/8) - 1)
 #define USART_BAUD 9600
 #define USART_BAUDRATE ((F_CPU/(USART_BAUD * 16UL)) - 1)
-#define USART_QUEUE_LENGTH 64
+#define USART_QUEUE_LENGTH 8
+#define USART_STRING_LENGTH 256
 
 
 /* Rotary input
@@ -47,6 +48,6 @@ ISR(USART1_RX_vect); 		// USART
 void utilities_init();
 unsigned long millis();
 Inputs get_inputs();
-uint8_t pop_usart();
+void pop_usart(char *string);
 
 #endif

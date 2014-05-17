@@ -7,7 +7,8 @@ volatile unsigned long timer1_millis = 0;
 volatile unsigned long last_button = 0;
 volatile unsigned long last_rev = 0;
 
-volatile uint8_t usart_queue[USART_QUEUE_LENGTH];
+volatile uint8_t usart_queue[USART_QUEUE_LENGTH][USART_STRING_LENGTH];
+volatile uint8_t string_end = 0;
 volatile uint8_t usart_head = 0;
 volatile uint8_t usart_tail = 0;
 
@@ -69,13 +70,29 @@ ISR(USART1_RX_vect)
 {
 	ATOMIC_BLOCK(ATOMIC_FORCEON)
 	{
-		usart_queue[usart_tail++] = UDR1;
+		usart_queue[usart_tail][string_end] = UDR1;
 
-		if(usart_tail >= USART_QUEUE_LENGTH) // roll queue
-			usart_tail = 0;
+		if(usart_queue[usart_tail][string_end] == '\n')
+		{
+			if(string_end + 1 >= USART_STRING_LENGTH)
+				usart_tail++;
 
-		if(usart_head == usart_tail) // overwrite unread data if overflow
-			usart_head++;
+			string_end = 0;
+
+			if(usart_tail >= USART_QUEUE_LENGTH) // roll queue
+				usart_tail = 0;
+
+			if(usart_head == usart_tail) // overwrite unread data if overflow
+				usart_head++;
+
+		} // new line
+		else
+			if((string_end + 1) >= USART_STRING_LENGTH)
+			{
+				string_end = 0;	
+			} // error: no newline found. discard data
+			else
+				string_end++;
 	}
 } // ISR(USART1) USART
 
@@ -147,21 +164,26 @@ Inputs get_inputs()
 
 
 
-uint8_t pop_usart()
+void pop_usart(char *string)
 {
-	uint8_t popped_value;
+	uint8_t i;
 
 	ATOMIC_BLOCK(ATOMIC_FORCEON)
 	{
-		if(usart_head == usart_tail) // queue is empty
-			return 0;
+		if(usart_head != usart_tail)
+		{
+			for(i = 0; i < USART_STRING_LENGTH; i++)
+				string[i] = usart_queue[usart_head][i];
 
-		popped_value = usart_queue[usart_head++];
+			usart_head++;
 
-		if(usart_head >= USART_QUEUE_LENGTH)
-			usart_head = 0;
-	}
-
-	return popped_value;
+			if(usart_head >= USART_QUEUE_LENGTH)
+				usart_head = 0;
+		} // queue is not empty
+		else
+			for(i = 0; i < USART_STRING_LENGTH - 1; i++)
+				string[i] = 0; // zero if empty
+			
+	} // atomic
 } // pop_usart()
 

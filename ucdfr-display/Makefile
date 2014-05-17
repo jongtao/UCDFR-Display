@@ -39,6 +39,11 @@ utilities.o: utilities.c utilities.h
 upload: ucdfrdisplay.hex
 	teensy_loader_cli -mmcu=at90usb1286 -v -w ucdfrdisplay.hex
 
+cleanupload: clean upload
+
+cleanmake: clean all
+
+
 
 
 clean:

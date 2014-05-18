@@ -47,10 +47,11 @@ typedef struct
 {
 	int
 		time,
+		speed,
 		motor_current_left,
 		motor_current_right,
-		motor_battery_current,
-		motor_battery_voltage,
+		battery_current,
+		battery_voltage,
 		throttle,
 		brake_pressure,
 		accel_x,
@@ -67,7 +68,7 @@ typedef struct
 
 typedef struct
 {
-	int last_button_num;
+	int last_button_num, last_detent_num;
 
 	/* Format
 	Nibble 1: Bar
@@ -81,7 +82,7 @@ typedef struct
 	uint8_t state_level;
 	uint8_t state[4];
 
-	UsartData usart_data[8];
+	UsartData usart_data;
 	//uint8_t usart_data_current;
 	char test_string[256]; // FIXME
 
@@ -96,7 +97,13 @@ typedef struct
 
 void engine_init();
 void engine_get_inputs(Data *data, Inputs *inputs);
+
 void engine_logic(Data *data, Inputs *inputs);
+void primary_logic(Data *data, Inputs *inputs);
+void selection_logic(Data *data, Inputs *inputs);
+void rotary_logic(Data *data, Inputs *inputs, uint8_t state_level,
+	uint8_t most);
+
 void engine_put_outputs();
 void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data);
 

@@ -68,14 +68,16 @@ int main()
 		engine_get_inputs(&data, &inputs);
 		engine_logic(&data, &inputs);
 		//engine_put_outputs();
-
+/*
  		milliseconds_current = millis();
-		if(milliseconds_current - milliseconds_since > 100)
+		if(milliseconds_current - milliseconds_since > 50)
 		{
+			*/
 			engine_graphics(lcdBuffer, &data);
 			lcd_draw(lcdBuffer);
 			milliseconds_since = milliseconds_current;
-		} // update screen every 10th of a second
+		//} // update screen every 10th of a second
+
 	} // run loop
 
 	return 0;

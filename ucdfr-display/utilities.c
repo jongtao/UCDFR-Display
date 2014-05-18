@@ -66,34 +66,45 @@ ISR(INT1_vect)
 
 
 
-ISR(USART1_RX_vect)
+ISR(USART1_RX_vect, ISR_BLOCK)
 {
-	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	PORTD |= (1<<6);
+	usart_queue[usart_tail][string_end] = UDR1;
+	/*
+	usart_queue[usart_tail][string_end] = 'a';
+	usart_queue[usart_tail][string_end + 1] = '\n';
+	usart_queue[usart_tail][string_end + 2] = 'a';
+	*/
+	
+
+	if(usart_queue[usart_tail][string_end] == '\n')
 	{
-		usart_queue[usart_tail][string_end] = UDR1;
+		//usart_queue[usart_tail][string_end + 1] = '\0';
+		//if(string_end + 1 >= USART_STRING_LENGTH)
+		usart_tail++;
+		string_end = 0;
 
-		if(usart_queue[usart_tail][string_end] == '\n')
+		if(usart_tail >= USART_QUEUE_LENGTH) // roll queue
+			usart_tail = 0;
+
+		if(usart_head == usart_tail) // overwrite unread data if overflow
 		{
-			if(string_end + 1 >= USART_STRING_LENGTH)
-				usart_tail++;
+			usart_head++;
 
-			string_end = 0;
+			if(usart_head >= USART_QUEUE_LENGTH)
+				usart_head = 0;
+		}
 
-			if(usart_tail >= USART_QUEUE_LENGTH) // roll queue
-				usart_tail = 0;
-
-			if(usart_head == usart_tail) // overwrite unread data if overflow
-				usart_head++;
-
-		} // new line
+	} // new line
+	else
+		if((string_end + 1) >= USART_STRING_LENGTH)
+		{
+			string_end = 0;	
+		} // error: no newline found. discard data
 		else
-			if((string_end + 1) >= USART_STRING_LENGTH)
-			{
-				string_end = 0;	
-			} // error: no newline found. discard data
-			else
-				string_end++;
-	}
+			string_end++;
+			
+	PORTD &= ~(1<<6);
 } // ISR(USART1) USART
 
 
@@ -170,20 +181,27 @@ void pop_usart(char *string)
 
 	ATOMIC_BLOCK(ATOMIC_FORCEON)
 	{
+		
+		for(i = 0; i < 10; i++)
+			string[i] = usart_queue[usart_head][i];
+
+/*
 		if(usart_head != usart_tail)
 		{
-			for(i = 0; i < USART_STRING_LENGTH; i++)
+			
+			for(i = 0; i < USART_STRING_LENGTH - 1; i++)
 				string[i] = usart_queue[usart_head][i];
 
-			usart_head++;
+			//usart_head++;
 
 			if(usart_head >= USART_QUEUE_LENGTH)
 				usart_head = 0;
+				
 		} // queue is not empty
 		else
 			for(i = 0; i < USART_STRING_LENGTH - 1; i++)
 				string[i] = 0; // zero if empty
-			
+	*/		
 	} // atomic
 } // pop_usart()
 

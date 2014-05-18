@@ -22,7 +22,7 @@ void engine_get_inputs(Data *data, Inputs *inputs)
 	pop_usart(usart_string);
 
 	int i;
-	for(i = 0; i<USART_STRING_LENGTH; i++)
+	for(i = 0; i < USART_STRING_LENGTH; i++)
 		data->test_string[i] = usart_string[i];
 	data->test_string[32] = '\0'; // chop string
 

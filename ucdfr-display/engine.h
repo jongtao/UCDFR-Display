@@ -27,9 +27,9 @@ enum Primary
 enum Selection
 {
 	S2_BACK,
-	S2_S1_CONF,
-	S2_S2_CONF,
-	S2_S3_CONF,
+	S2_1_CONF,
+	S2_2_CONF,
+	S2_3_CONF,
 	S2_MISC
 }; // Selection
 
@@ -37,6 +37,7 @@ enum Selection
 
 enum Field
 {
+	F_BACK,
 	F_LED,
 	F_BIG,
 	F_ONE,
@@ -74,7 +75,8 @@ enum BigThings
 	B_KPH,
 	B_TORQUE_RATIO,
 	B_BATTERY_SPENT_CHARGE,
-	B_MAG_ACCELL
+	B_MAG_ACCELL,
+	B_OFF
 };
 
 
@@ -87,7 +89,7 @@ enum LEDThings
 	L_THROTTLE_BRAKE,
 	L_LINEAR_ACCEL,
 	L_LATERAL_ACCEL,
-	L_YAW
+	L_YAW,
 	L_OFF
 };
 
@@ -150,6 +152,7 @@ void engine_get_inputs(Data *data, Inputs *inputs);
 void engine_logic(Data *data, Inputs *inputs);
 void primary_logic(Data *data, Inputs *inputs);
 void selection_logic(Data *data, Inputs *inputs);
+void configuration_logic(Data *data, Inputs *inputs);
 void rotary_logic(Data *data, Inputs *inputs, uint8_t state_level,
 	uint8_t most);
 

@@ -16,10 +16,12 @@ ucdfrdisplay.hex: ucdfrdisplay.elf
 
 
 
-ucdfrdisplay.elf: ucdfr-display.o lcd.o graphics.o engine.o utilities.o
+ucdfrdisplay.elf: ucdfr-display.o lcd.o graphics.o engine.o utilities.o \
+koala_data_processor.o
 	$(CC) $(OPTIMIZE) $(WARN) $(OPTIONS) -mmcu=$(MMCU) -o $@ $^
 
-ucdfr-display.o: ucdfr-display.c lcd.h graphics.h engine.h utilities.h
+ucdfr-display.o: ucdfr-display.c lcd.h graphics.h engine.h utilities.h \
+koala_data_processor.h
 	$(CC) $(OPTIMIZE) $(WARN) $(OPTIONS) -mmcu=$(MMCU) -c $<
 
 lcd.o: lcd.c lcd.h
@@ -34,6 +36,8 @@ engine.o: engine.c engine.h
 utilities.o: utilities.c utilities.h
 	$(CC) $(OPTIMIZE) $(WARN) $(OPTIONS) -mmcu=$(MMCU) -c $<
 
+koala_data_processor.o: koala_data_processor.c koala_data_processor.h
+	$(CC) $(OPTIMIZE) $(WARN) $(OPTIONS) -mmcu=$(MMCU) -c $<
 
 
 upload: ucdfrdisplay.hex

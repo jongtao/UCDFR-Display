@@ -44,16 +44,23 @@ void graphics_blit(uint8_t lcdBuffer[2][8][64],
 
 			indX = (i + srcX)/8; 								// Compute X index in terms of bitmap location
 			
-			if(mode == BITMAP)
-				lcdBuffer[cs][page2][horizontal] |=
-					(!!(pgm_read_byte_near(bitmap + indY + indX) &
-					(0x01 << (7 - (i + srcX)%8)))) << k; // BLIT
-			else
-				if(mode == XOR)
+			switch(mode)
+			{
+				case BITMAP:
+					lcdBuffer[cs][page2][horizontal] |=
+						(!!(pgm_read_byte_near(bitmap + indY + indX) &
+						(0x01 << (7 - (i + srcX)%8)))) << k; // BLIT
+					break;
+				case XOR:
 					lcdBuffer[cs][page2][horizontal] ^= (0x01) << k; // XOR
-
-
-
+					break;
+				case ZERO:
+					lcdBuffer[cs][page2][horizontal] &= ~(0x01) << k; // ZERO
+					break;
+				case ONE:
+					lcdBuffer[cs][page2][horizontal] |= (0x01) << k; // ONE
+					break;
+			}; // switch mode
 		} // for horizontal pixel in char
 
 		k++;																	// counts bits from top of page
@@ -156,6 +163,14 @@ void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 		i++;
 	} // while string
 } // graphics_num()
+
+
+
+void graphics_xor_rect(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
+	uint8_t width, uint8_t height)
+{
+		graphics_blit(lcdBuffer, dstX, dstY, NULL, 0, 0, width, height, 0, XOR);
+} // graphics_xor_rect()
 
 
 

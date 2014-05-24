@@ -17,7 +17,9 @@
 enum modes
 {
 	BITMAP,
-	XOR
+	XOR,
+	ZERO,
+	ONE
 };
 
 
@@ -34,6 +36,9 @@ void graphics_print(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 
 void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 	char* string);
+
+void graphics_xor_rect(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
+	uint8_t width, uint8_t height);
 
 
 /* BITMAPS */

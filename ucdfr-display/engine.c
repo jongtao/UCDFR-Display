@@ -202,8 +202,8 @@ void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 		graphics_print(lcdBuffer, 0, 36, "   Screen 3 Config >");
 		graphics_print(lcdBuffer, 0, 45, "   Miscellaneous   >");
 
-		graphics_xor_rect(lcdBuffer,
-			12, 9*(1 + data->state[data->state_level]), 102, 8);
+		graphics_rect(lcdBuffer,
+			12, 9*(1 + data->state[data->state_level]), 102, 8, XOR);
 
 		sprintf(string, "usart: %s", data->test_string);
 		graphics_print(lcdBuffer, 0, 54, string);
@@ -213,8 +213,9 @@ void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 
 	if(data->state_level == 2)
 	{
-		uint8_t i = 1;
+		uint8_t i;
 		uint8_t j;
+		uint8_t scroll_level = 0;
 		char number[2] = {0,0};
 
 		if(data->state[1] == S2_MISC)
@@ -224,6 +225,25 @@ void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 		} // if MISC
 		else
 		{
+
+			i = 1;
+			graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), " < Back");
+			graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), "   LED Bar         >");
+			graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), "   Big Field       >");
+
+			for(j=1; j<8; j++)
+			{
+				*number = '0' + j;
+				graphics_print(lcdBuffer, 0, 9*(i-scroll_level), "   Field ");
+				graphics_print(lcdBuffer, 54, 9*(i-scroll_level), number);
+				graphics_print(lcdBuffer, 114, 9*(i++-scroll_level), ">");
+			}
+
+			graphics_rect(lcdBuffer,
+				12, 9*(1 + data->state[data->state_level]-scroll_level), 102, 8, XOR);
+
+			graphics_rect(lcdBuffer, 0, 0, 128, 8, ZERO);	// wipe title background
+
 			switch(data->state[1])
 			{
 				case S2_1_CONF:
@@ -236,32 +256,6 @@ void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 					graphics_print(lcdBuffer, 0, 0,  "   SCREEN 3 CONFIG");
 					break;
 			};
-			i = 1;
-
-			graphics_print(lcdBuffer, 0, 9*i++,  " < Back");
-			graphics_print(lcdBuffer, 0, 9*i++, "   LED Bar         >");
-			graphics_print(lcdBuffer, 0, 9*i++, "   Big Field       >");
-
-
-			for(j=1; j<8; j++)
-			{
-				*number = '0' + j;
-				graphics_print(lcdBuffer, 0, 9*i, "   Field ");
-				graphics_print(lcdBuffer, 54, 9*i, number);
-				graphics_print(lcdBuffer, 114, 9*i++, ">");
-			}
-/*
-
-			graphics_print(lcdBuffer, 0, 36, "   Field 2    >");
-			graphics_print(lcdBuffer, 0, 36, "   Field 3    >");
-			graphics_print(lcdBuffer, 0, 36, "   Field 4    >");
-			graphics_print(lcdBuffer, 0, 36, "   Field 5    >");
-			graphics_print(lcdBuffer, 0, 36, "   Field 6    >");
-			graphics_print(lcdBuffer, 0, 36, "   Field 7    >");
-*/
-
-			graphics_xor_rect(lcdBuffer,
-				12, 9*(1 + data->state[data->state_level]), 102, 8);
 		} // if not MISC
 	} // LEVEL 2
 	

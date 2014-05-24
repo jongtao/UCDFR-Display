@@ -37,8 +37,8 @@ void graphics_print(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 	char* string);
 
-void graphics_xor_rect(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
-	uint8_t width, uint8_t height);
+void graphics_rect(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
+	uint8_t width, uint8_t height, uint8_t mode);
 
 
 /* BITMAPS */

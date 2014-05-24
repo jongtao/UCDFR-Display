@@ -49,16 +49,11 @@ typedef struct
 } LcdInputs;
 
 
-void lcd_db_shift(uint8_t value);
 
 void lcd_input(LcdInputs* Inputs);
-
 void lcd_clear();
-
 void lcd_init();
-
 void lcd_onoff();
-
 void lcd_draw(uint8_t lcdBuffer[2][8][64]);
 
 #endif

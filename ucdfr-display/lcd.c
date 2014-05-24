@@ -1,22 +1,5 @@
 #include "lcd.h"
 
-/*
-
-void lcd_db_shift(uint8_t value)
-{
-	uint8_t i;
-	for(i=0; i<8; i++)
-	{
-		PORTB &= ~(1 << 1);
-		PORTB |= ((1 & value) << 1);	// Push bit to DB_DATA
-		PORTB &= ~(1 << 2);						// DB_CLK 0
-		PORTB |= (1 << 2);						// DB_CLK 1
-		value >>= 1;
-	} // for i
-
-	PORTB &= ~(1 << 2);							// DB_CLK 0
-} // lcd_clearDB()
-*/
 
 
 void lcd_input(LcdInputs* Inputs)

@@ -50,12 +50,11 @@ for(num = 0; num < 8; num++)
 int main()
 {
 	uint8_t lcdBuffer[2][8][64];
-	//uint8_t usart_byte = 0;
 	Inputs inputs;
 	Data data;
 	
-	unsigned long milliseconds_since = 0;
-	unsigned long milliseconds_current = 0;
+	//unsigned long milliseconds_since = 0;
+	//unsigned long milliseconds_current = 0;
 
 	lcd_init();
 	engine_init(&data);
@@ -63,8 +62,6 @@ int main()
 
 	for(;;)
 	{
-
-
 		engine_get_inputs(&data, &inputs);
 		engine_logic(&data, &inputs);
 		//engine_put_outputs();
@@ -75,7 +72,7 @@ int main()
 			*/
 			engine_graphics(lcdBuffer, &data);
 			lcd_draw(lcdBuffer);
-			milliseconds_since = milliseconds_current;
+			//milliseconds_since = milliseconds_current;
 		//} // update screen every 10th of a second
 
 	} // run loop

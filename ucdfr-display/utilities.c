@@ -125,6 +125,11 @@ void utilities_init()
 	UCSR1C = (1 << UCSZ10) | (1 << UCSZ11); // 8-bit asynchronous no parity
 	UCSR1B = (1 << RXCIE1) | (1 << RXEN1) | (1 << TXEN1);		// Enable
 
+	// LEDs
+	DDRD |= 0xF0;				// D4-D7
+	DDRE |= 0x03;				// E0-E1
+	DDRC |= 0xFF;				// C0-C7
+
 	sei();							// Enable interrupts
 } // timer_init()
 
@@ -165,9 +170,22 @@ char* get_usart(char *string)
 	ATOMIC_BLOCK(ATOMIC_FORCEON)
 	{
 		for(i = 0; i + 1 < USART_STRING_LENGTH; i++)
-			string[i] = usart_buffer[i];
+			string[i] = usart_buffer[i]; // Copy buffer to string
 	} // atomic
 
 	return string;
-} // pop_usart()
+} // get_usart()
+
+
+
+void put_leds(uint16_t leds)
+{
+	PORTD &= ~(0xF0);
+	PORTE &= ~(0x03);
+	//PORTC &= ~(0xFF); 			// whole PC is used
+
+	PORTD |= ((0x3C00 & leds) >> 6);
+	PORTE |= ((0x0300 & leds) >> 8);
+	PORTC = (0x00FF & leds);	// Equals
+} // put_leds()
 

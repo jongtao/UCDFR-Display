@@ -20,7 +20,6 @@ enum Primary
 	S1_SCREEN_ONE,
 	S1_SCREEN_TWO,
 	S1_SCREEN_THREE,
-	S1_MENU
 }; // Primary
 
 
@@ -35,11 +34,61 @@ enum Selection
 }; // Selection
 
 
-// Things to display
-enum Things
+
+enum Field
 {
-	T_SCREEN,
-	T_TORQUE
+	F_LED,
+	F_BIG,
+	F_ONE,
+	F_TWO,
+	F_THREE,
+	F_FOUR,
+	F_FIVE,
+	F_SIX,
+	F_SEVEN
+};
+
+
+// Things to display
+enum SmallThings
+{
+	S_MPH,
+	S_KPH,
+	S_RAW_WHEEL_SPEED,
+	S_TORQUE_RATIO,
+	S_RAW_MOTOR_CURRENT,
+	S_BATTERY_SPENT_CHARGE,
+	S_RAW_BATTERY,
+	S_THROTTLE,
+	S_BRAKE,
+	S_MAG_ACCEL,
+	S_RAW_ACCEL,
+	S_RAW_YAW
+};
+
+
+
+enum BigThings
+{
+	B_MPH,
+	B_KPH,
+	B_TORQUE_RATIO,
+	B_BATTERY_SPENT_CHARGE,
+	B_MAG_ACCELL
+};
+
+
+
+enum LEDThings
+{
+	L_SPEED,
+	L_TORQUE_RATIO,
+	L_BATTERY,
+	L_THROTTLE_BRAKE,
+	L_LINEAR_ACCEL,
+	L_LATERAL_ACCEL,
+	L_YAW
+	L_OFF
 };
 
 
@@ -59,7 +108,7 @@ typedef struct
 		accel_x,
 		accel_y,
 		accel_z,
-		gyro_x,
+		gyro_yaw,
 		ir_temp_left,
 		ir_temp_right;
 } UsartData;

@@ -6,7 +6,7 @@
 void graphics_blit(uint8_t lcdBuffer[2][8][64],
 	uint8_t dstX, uint8_t dstY, const uint8_t *bitmap,
 	uint16_t srcX, uint16_t srcY, uint8_t width,
-	uint8_t height, uint16_t rowLen)
+	uint8_t height, uint16_t rowLen, uint8_t mode)
 {
 	uint16_t page1, page2, cs, horizontal, i, j, k;
 	uint16_t indX, indY;
@@ -43,10 +43,17 @@ void graphics_blit(uint8_t lcdBuffer[2][8][64],
 			} // if need to move to next CS
 
 			indX = (i + srcX)/8; 								// Compute X index in terms of bitmap location
-		
-			lcdBuffer[cs][page2][horizontal] |=
-				(!!(pgm_read_byte_near(bitmap + indY + indX) &
-				(0x01 << (7 - (i + srcX)%8)))) << k; // BLIT
+			
+			if(mode == BITMAP)
+				lcdBuffer[cs][page2][horizontal] |=
+					(!!(pgm_read_byte_near(bitmap + indY + indX) &
+					(0x01 << (7 - (i + srcX)%8)))) << k; // BLIT
+			else
+				if(mode == XOR)
+					lcdBuffer[cs][page2][horizontal] ^= (0x01) << k; // XOR
+
+
+
 		} // for horizontal pixel in char
 
 		k++;																	// counts bits from top of page
@@ -90,12 +97,15 @@ void graphics_print(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 			}
 
 			graphics_blit(lcdBuffer, cursor, dstY, bitmapCharacters,
-				(string[i] - ' ') * 5, 0, 5, 8, 480);
+				(string[i] - ' ') * 5, 0, 5, 8, 480, BITMAP);
 
 			cursor += 6;
 		} // else
 
 		i++;
+
+		if(i > 200) // quickfix to prevent strange overflow
+			break;
 	} // until '\0'
 } // graphics_print()
 
@@ -113,7 +123,7 @@ void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 		if('0' <= string[i] && string[i] <= '9')
 		{
 			graphics_blit(lcdBuffer, cursor, dstY, bitmapBigNum,
-				(string[i] - '0') * 32, 0, 32, 40, 456);
+				(string[i] - '0') * 32, 0, 32, 40, 456, BITMAP);
 			cursor += 30;
 		} // if number
 		else
@@ -121,66 +131,32 @@ void graphics_num(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 			{
 				case '.': // decimal
 					graphics_blit(lcdBuffer, cursor - 14, dstY, bitmapBigNum,
-						320, 0, 32, 40, 456);
+						320, 0, 32, 40, 456, BITMAP);
 					cursor += 4;
 					break;
 				case '-': // dash
 					graphics_blit(lcdBuffer, cursor, dstY, bitmapBigNum,
-						352, 0, 32, 40, 456);
+						352, 0, 32, 40, 456, BITMAP);
 					cursor += 30;
 					break;
 				case '%': // percent
 					graphics_blit(lcdBuffer, cursor, dstY, bitmapBigNum,
-						384, 0, 32, 40, 456);
+						384, 0, 32, 40, 456, BITMAP);
 					cursor += 30;
 					break;
 				case '!': // exclaimation
 					graphics_blit(lcdBuffer, cursor, dstY, bitmapBigNum,
-						416, 0, 32, 40, 456);
+						416, 0, 32, 40, 456, BITMAP);
 					cursor += 30;
 					break;
 				case ' ': // space
 					cursor += 30;
 					break;
 			} // switch character in string
-
-			/*
-			if(string[i] == '.')
-			{
-				graphics_blit(lcdBuffer, cursor - 14, dstY, bitmapBigNum,
-					320, 0, 32, 40, 456);
-				cursor += 4;
-			} // if decimal place
-			else
-				if(string[i] == '-')
-				{
-					graphics_blit(lcdBuffer, cursor, dstY, bitmapBigNum,
-						352, 0, 32, 40, 456);
-					cursor += 30;
-				} // if negative
-				else
-					if(string[i] == '%')
-					{
-
-						graphics_blit(lcdBuffer, cursor, dstY, bitmapBigNum,
-							384, 0, 32, 40, 456);
-						cursor += 30;
-					} // if percent
-					else
-						if(string[i] == '!')
-						{
-
-							graphics_blit(lcdBuffer, cursor, dstY, bitmapBigNum,
-								416, 0, 32, 40, 456);
-								cursor += 30;
-						} // if percent
-						else
-							if(string[i] == ' ')
-								cursor += 30; // space
-								*/
 		i++;
 	} // while string
 } // graphics_num()
+
 
 
 

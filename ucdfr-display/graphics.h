@@ -14,10 +14,18 @@
 
 
 
+enum modes
+{
+	BITMAP,
+	XOR
+};
+
+
+
 void graphics_blit(uint8_t lcdBuffer[2][8][64],
 	uint8_t dstX, uint8_t dstY, const uint8_t *bitmap,
 	uint16_t srcX, uint16_t srcY, uint8_t width,
-	uint8_t height, uint16_t rowLen);
+	uint8_t height, uint16_t rowLen, uint8_t mode);
 
 void graphics_clear_buffer(uint8_t lcdBuffer[2][8][64]);
 

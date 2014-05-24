@@ -27,9 +27,10 @@ enum Primary
 
 enum Selection
 {
-	S2_SCREEN_ONE,
-	S2_SCREEN_TWO,
-	S2_SCREEN_THREE,
+	S2_BACK,
+	S2_S1_CONF,
+	S2_S2_CONF,
+	S2_S3_CONF,
 	S2_MISC
 }; // Selection
 

@@ -28,7 +28,7 @@ void engine_get_inputs(Data *data, Inputs *inputs)
 	for(i = 0; i < USART_STRING_LENGTH; i++)
 		data->test_string[i] = usart_string[i];
 
-	data->test_string[192] = 0;
+	data->test_string[255] = 0;
 	data->usart_data.speed = usart_string[0]; // FIXME test speed
 
 // parse usart
@@ -38,7 +38,6 @@ void engine_get_inputs(Data *data, Inputs *inputs)
 
 void engine_logic(Data *data, Inputs *inputs)
 {
-
 	switch(data->state_level)
 	{
 		case 0:
@@ -48,31 +47,6 @@ void engine_logic(Data *data, Inputs *inputs)
 			selection_logic(data, inputs);
 			break;
 	};
-
-/*
-	// translate input to user intention
-	if(inputs->num_button > data->last_button_num)
-	{
-		data->last_button_num = inputs->num_button;
-
-		// traverse states
-		if(data->state_level == 0)
-			data->state_level = 1;
-		else
-			if(data->state_level == 1)
-				data->state_level = 0;
-
-	// write data to ram
-	// write data to eeprom
-
-	} // if button increased
-
-	if(inputs.detents > data.last_detent_num)
-	{
-	}
-	else
-		if(inputs.detents < data.last_detent_num)
-			*/
 } // engine_process_data()
 
 
@@ -84,6 +58,7 @@ void primary_logic(Data *data, Inputs *inputs)
 	{
 		data->last_button_num = inputs->num_button;
 		data->state_level = 1;
+		data->state[data->state_level] = 0;
 	} // if button increased
 
 	rotary_logic(data, inputs, data->state_level, 2);
@@ -97,16 +72,18 @@ void selection_logic(Data *data, Inputs *inputs)
 	if(inputs->num_button > data->last_button_num)
 	{
 		data->last_button_num = inputs->num_button;
-		data->state_level = 0;
+
+		if(data->state[data->state_level] == S2_BACK)
+			data->state_level = 0;
 	} // if button increased
 
-	// rotary_logic();
+	rotary_logic(data, inputs, data->state_level, 4);
 } // selection_logic()
 
 
 
 void rotary_logic(Data *data, Inputs *inputs, uint8_t state_level,
-	uint8_t most)
+	uint8_t most) // scrolls through state in current level
 {
 	if(inputs->detent > data->last_detent_num)
 	{
@@ -172,9 +149,18 @@ void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 
 	if(data->state_level == 1)
 	{
-		//sprintf(string, "State aasdf");
+		graphics_print(lcdBuffer, 0, 0,  "    CONFIGURATION");
+		graphics_print(lcdBuffer, 0, 9,  " < Back");
+		graphics_print(lcdBuffer, 0, 18, "   Screen 1 Config >");
+		graphics_print(lcdBuffer, 0, 27, "   Screen 2 Config >");
+		graphics_print(lcdBuffer, 0, 36, "   Screen 3 Config >");
+		graphics_print(lcdBuffer, 0, 45, "   Miscellaneous   >");
+
+		graphics_blit(lcdBuffer, 12, 9*(1 + data->state[data->state_level]),
+			NULL, 0, 0, 102, 8, 0, XOR);
+
 		sprintf(string, "usart: %s", data->test_string);
-		graphics_print(lcdBuffer, 0, 0, string);
+		graphics_print(lcdBuffer, 0, 54, string);
 	}
 	
 

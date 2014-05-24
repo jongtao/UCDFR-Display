@@ -48,6 +48,7 @@ ISR(USART1_RX_vect); 		// USART
 void utilities_init();
 unsigned long millis();
 Inputs get_inputs();
-void pop_usart(char *string);
+//void pop_usart(char *string);
+char* get_usart(char *string);
 
 #endif

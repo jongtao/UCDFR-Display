@@ -72,7 +72,7 @@ void graphics_print(uint8_t lcdBuffer[2][8][64], uint8_t dstX, uint8_t dstY,
 	char* string)
 {
 	uint16_t i = 0;
-	uint8_t cursor = dstX;
+	uint16_t cursor = dstX;
 
 	while(string[i])
 	{

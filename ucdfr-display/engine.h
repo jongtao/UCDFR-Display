@@ -46,8 +46,9 @@ enum Things
 typedef struct
 {
 	int
-		time,
 		speed,
+		motor_speed_left,
+		motor_speed_right,
 		motor_current_left,
 		motor_current_right,
 		battery_current,
@@ -58,8 +59,6 @@ typedef struct
 		accel_y,
 		accel_z,
 		gyro_x,
-		gyro_y,
-		gyro_z,
 		ir_temp_left,
 		ir_temp_right;
 } UsartData;

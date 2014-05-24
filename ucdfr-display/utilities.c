@@ -7,10 +7,10 @@ volatile unsigned long timer1_millis = 0;
 volatile unsigned long last_button = 0;
 volatile unsigned long last_rev = 0;
 
-volatile uint8_t usart_queue[USART_QUEUE_LENGTH][USART_STRING_LENGTH];
 volatile uint8_t string_end = 0;
-volatile uint8_t usart_head = 0;
-volatile uint8_t usart_tail = 0;
+volatile uint8_t usart_tmp_buffer[USART_STRING_LENGTH];
+volatile uint8_t usart_buffer[USART_STRING_LENGTH];
+
 
 
 
@@ -68,42 +68,25 @@ ISR(INT1_vect)
 
 ISR(USART1_RX_vect, ISR_BLOCK)
 {
+	unsigned int i;
+
 	PORTD |= (1<<6);
-	usart_queue[usart_tail][string_end] = UDR1;
-	/*
-	usart_queue[usart_tail][string_end] = 'a';
-	usart_queue[usart_tail][string_end + 1] = '\n';
-	usart_queue[usart_tail][string_end + 2] = 'a';
-	*/
-	
-
-	if(usart_queue[usart_tail][string_end] == '\n')
+	usart_tmp_buffer[string_end] = UDR1;
+		
+	if(usart_tmp_buffer[string_end] == '\n')
 	{
-		//usart_queue[usart_tail][string_end + 1] = '\0';
-		//if(string_end + 1 >= USART_STRING_LENGTH)
-		usart_tail++;
+		//if(string_end + 1 == USART_STRING_LENGTH) // copy completed string
+			for(i = 0; i < USART_STRING_LENGTH; i++)
+				usart_buffer[i] = usart_tmp_buffer[i];
+			
 		string_end = 0;
-
-		if(usart_tail >= USART_QUEUE_LENGTH) // roll queue
-			usart_tail = 0;
-
-		if(usart_head == usart_tail) // overwrite unread data if overflow
-		{
-			usart_head++;
-
-			if(usart_head >= USART_QUEUE_LENGTH)
-				usart_head = 0;
-		}
-
-	} // new line
+	}
 	else
-		if((string_end + 1) >= USART_STRING_LENGTH)
-		{
-			string_end = 0;	
-		} // error: no newline found. discard data
+		if(string_end + 1 >= USART_STRING_LENGTH) // overflow
+			string_end = 0;
 		else
 			string_end++;
-			
+	
 	PORTD &= ~(1<<6);
 } // ISR(USART1) USART
 
@@ -175,33 +158,16 @@ Inputs get_inputs()
 
 
 
-void pop_usart(char *string)
+char* get_usart(char *string)
 {
-	uint8_t i;
+	unsigned int i;
 
 	ATOMIC_BLOCK(ATOMIC_FORCEON)
 	{
-		
-		for(i = 0; i < 10; i++)
-			string[i] = usart_queue[usart_head][i];
-
-/*
-		if(usart_head != usart_tail)
-		{
-			
-			for(i = 0; i < USART_STRING_LENGTH - 1; i++)
-				string[i] = usart_queue[usart_head][i];
-
-			//usart_head++;
-
-			if(usart_head >= USART_QUEUE_LENGTH)
-				usart_head = 0;
-				
-		} // queue is not empty
-		else
-			for(i = 0; i < USART_STRING_LENGTH - 1; i++)
-				string[i] = 0; // zero if empty
-	*/		
+		for(i = 0; i + 1 < USART_STRING_LENGTH; i++)
+			string[i] = usart_buffer[i];
 	} // atomic
+
+	return string;
 } // pop_usart()
 

@@ -19,17 +19,17 @@ void engine_init(Data *data)
 
 void engine_get_inputs(Data *data, Inputs *inputs)
 {
+	unsigned int i;
 	char usart_string[USART_STRING_LENGTH];
 	*inputs = get_inputs();
-	pop_usart(usart_string);
+	get_usart(usart_string);
 
-	int i;
+	
 	for(i = 0; i < USART_STRING_LENGTH; i++)
 		data->test_string[i] = usart_string[i];
-	data->test_string[32] = '\0'; // chop string
 
+	data->test_string[192] = 0;
 	data->usart_data.speed = usart_string[0]; // FIXME test speed
-
 
 // parse usart
 } // engine_get_inputs()
@@ -138,7 +138,7 @@ void engine_put_outputs(){}
 void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 {
 	//Inputs inputs = get_inputs();
-	char string[128];
+	char string[256];
 	graphics_clear_buffer(lcdBuffer);
 	/*
 	graphics_clear_buffer(lcdBuffer);

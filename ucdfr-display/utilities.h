@@ -14,10 +14,16 @@
 #define USART_STRING_LENGTH 256
 
 
-/* Rotary input
+/* Prototype Rotary Input
 Button	PD0
 A				PD1
 B				PB7
+*/
+
+/* Actual Rotary Input
+Button	PD1
+A				PD0
+B				PD7
 */
 
 /* Buzzer

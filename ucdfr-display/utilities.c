@@ -130,6 +130,11 @@ void utilities_init()
 	DDRE |= 0x03;				// E0-E1
 	DDRC |= 0xFF;				// C0-C7
 
+	/* Test LEDs */
+	PORTD |= 0xF0;				// D4-D7
+	PORTE |= 0x03;				// E0-E1
+	PORTC |= 0xFF;				// C0-C7
+
 	sei();							// Enable interrupts
 } // timer_init()
 

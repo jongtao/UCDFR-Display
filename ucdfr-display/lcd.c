@@ -6,43 +6,41 @@ void lcd_input(LcdInputs* Inputs)
 {
 	uint8_t temp_db = Inputs->db;
 
-	PORTF &= ~(1 << 2);							// E 0
+	PORTB &= ~(1 << 4);							// E 0
 
-	PORTF	&= ~(1 << 4);
-	PORTF |= (Inputs->di << 4);			// DI di
-	PORTF	&= ~(1 << 3);
-	PORTF |= (Inputs->rw << 3);			// RW rw
+	PORTB	&= ~(1 << 6);
+	PORTB |= (Inputs->di << 6);			// DI di
+	PORTB	&= ~(1 << 5);
+	PORTB |= (Inputs->rw << 5);			// RW rw
 
-	PORTF &= 0xFC;									// Clear DB0 to DB1
-	PORTE &= 0x3F;									// Clear DB2 to DB3
-	PORTB &= 0xF0;									// Clear DB4 to DB7
+	PORTB &= 0xF0;									// Clear DB0 to DB3
+	PORTE &= 0x3F;									// Clear DB4 to DB5
+	PORTF &= 0xFC;									// Clear DB6 to DB7
 
-	PORTF |= ((1 & temp_db) << 1);	// Push bits from DB0 to DB7
+	PORTB |= ((1 & temp_db) << 3);	// Push bits from DB0 to DB7
 	temp_db >>= 1;
-	PORTF |= ((1 & temp_db) << 0);
+	PORTB |= ((1 & temp_db) << 2);	// DB1
 	temp_db >>= 1;
-
-	PORTE |= ((1 & temp_db) << 6);
+	PORTB |= ((1 & temp_db) << 1);	// DB2
 	temp_db >>= 1;
-	PORTE |= ((1 & temp_db) << 7);
+	PORTB |= ((1 & temp_db) << 0);	// DB3
 	temp_db >>= 1;
-
-	PORTB |= ((1 & temp_db) << 0);
+	PORTE |= ((1 & temp_db) << 7);	// DB4
 	temp_db >>= 1;
-	PORTB |= ((1 & temp_db) << 1);
+	PORTE |= ((1 & temp_db) << 6);	// DB5
 	temp_db >>= 1;
-	PORTB |= ((1 & temp_db) << 2);
+	PORTF |= ((1 & temp_db) << 0);	// DB6
 	temp_db >>= 1;
-	PORTB |= ((1 & temp_db) << 3);
+	PORTF |= ((1 & temp_db) << 1);	// DB7
 	// End Data
 
-	PORTB &= ~(1 << 4);
-	PORTB |= (Inputs->cs_one << 4);	// CS1 CS_one
-	PORTB &= ~(1 << 5);
-	PORTB |= (Inputs->cs_two << 5); // CS2 cs_two
+	PORTF &= ~(1 << 2);
+	PORTF |= (Inputs->cs_one << 2);	// CS1 CS_one
+	PORTF &= ~(1 << 3);
+	PORTF |= (Inputs->cs_two << 3); // CS2 cs_two
 
-	PORTF |= (1 << 2);		// E 1
-	PORTF &= ~(1 << 2);		// E 0
+	PORTB |= (1 << 4);		// E 1
+	PORTB &= ~(1 << 4);		// E 0
 } // lcd_input()
 
 
@@ -84,7 +82,8 @@ void lcd_init()
 	DDRB = 0x7F;				// enable PB0 to PB6
 	DDRE = 0xC0;				// enable PE6 to PE7
 	DDRF = 0x1F;				// enable PF0 to PF4
-	PORTB |= (1 << 6);	// RST 1
+	//PORTB |= (1 << 6);	// RST 1
+	PORTF |= (1 << 4);	// RST 1
 
 	lcd_onoff();
 	lcd_clear();

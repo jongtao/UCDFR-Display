@@ -7,6 +7,8 @@ volatile unsigned long timer1_millis = 0;
 volatile unsigned long last_button = 0;
 volatile unsigned long last_rev = 0;
 
+volatile uint8_t rotate_now = 1; // 0=cwise, 1=untouched, 2=countercwise
+
 volatile uint8_t string_end = 0;
 volatile uint8_t usart_tmp_buffer[USART_STRING_LENGTH];
 volatile uint8_t usart_buffer[USART_STRING_LENGTH];
@@ -17,6 +19,21 @@ volatile uint8_t usart_buffer[USART_STRING_LENGTH];
 ISR(TIMER1_COMPA_vect)
 {
 	timer1_millis++;
+
+	// Begin Scheduled events
+
+	// poll for rotary state.
+	if(rotate_now != 1)
+		if(!(PINB&(1<<7)) && !(PIND&(1<<0)))
+		{
+			if(rotate_now == 2)
+				inputs.detent++;
+			else
+				if(rotate_now == 0)
+					inputs.detent--;
+
+			rotate_now = 1;
+		} // if back to normal zero state
 } // ISR(TIMER1)
 
 
@@ -47,8 +64,15 @@ ISR(INT1_vect, ISR_BLOCK)
 
 ISR(INT0_vect, ISR_BLOCK)
 {
-	if((millis() - last_rev) > 100)
+		if(!(PINB&(1<<7)))
+			rotate_now = 0;
+		else
+			rotate_now = 2;
+
+	/*
+	if((millis() - last_rev) > 50)
 	{
+		_delay_ms(2);
 		if(!(PINB&(1<<7)))
 			inputs.detent--;
 		else
@@ -56,6 +80,7 @@ ISR(INT0_vect, ISR_BLOCK)
 	
 		last_rev = millis();
 	}// Debounce
+	*/
 } // ISR(INT1) A pin
 
 

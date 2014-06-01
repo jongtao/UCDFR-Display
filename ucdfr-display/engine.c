@@ -168,29 +168,8 @@ void engine_put_outputs()
 
 void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 {
-	//Inputs inputs = get_inputs();
 	graphics_clear_buffer(lcdBuffer);
-	/*
-	graphics_clear_buffer(lcdBuffer);
-	sprintf(string, "%2d.%d", 64,2);
-	graphics_num(lcdBuffer, 0, 0, string);
-	graphics_print(lcdBuffer, 105, 20, "mph");
-	graphics_print(lcdBuffer, 16, 46, "Temp: 40C (ok)\nTorque Bias: 60%");
-	*/
-
-/*	
-	if(inputs.button)
-	{
-		graphics_print(lcdBuffer, 64, 20, "Button");
-	}
-
-	sprintf(string,
-		"millis: %lu\nnum_buttons: %d\nrotations: %d\n",
-		millis(), inputs.num_button, inputs.detent);
 	
-	graphics_print(lcdBuffer, 0, 0, string);
-*/
-
 	if(data->state_level == 0)
 		engine_graphics_0(lcdBuffer, data);
 
@@ -206,11 +185,12 @@ void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 void engine_graphics_0(uint8_t lcdBuffer[2][8][64], Data *data)
 {
 	char string[256];
-	//sprintf(string, "State 0: %d", data->state[0]);
 	sprintf(string, "%d", data->usart_data.speed);
 	graphics_num(lcdBuffer, 0, 0, string);
 	graphics_print(lcdBuffer, 105, 20, "mph");
-	graphics_print(lcdBuffer, 0, 46, "Temp: 40C (ok)\nTorque Bias: 60%");
+	graphics_print(lcdBuffer, 0, 46, "Temp: 40C (ok)");
+	sprintf(string, "Screen: %d", data->state[data->state_level]);
+	graphics_print(lcdBuffer, 0, 55, string);
 } // engine_graphics_0
 
 

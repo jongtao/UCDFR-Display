@@ -10,17 +10,11 @@
 #define CTC_COUNT (((F_CPU/1000)/8) - 1)
 #define USART_BAUD 9600
 #define USART_BAUDRATE ((F_CPU/(USART_BAUD * 16UL)) - 1)
-//#define USART_QUEUE_LENGTH 8
 #define USART_STRING_LENGTH 256
 
 
-/* Prototype Rotary Input
-Button	PD0
-A				PD1
-B				PB7
-*/
 
-/* Actual Rotary Input
+/* Rotary Input
 Button	PD1
 A				PD0
 B				PD7
@@ -35,6 +29,8 @@ D4-D7
 E0-E1
 C0-C7
 */
+
+
 
 typedef struct
 {

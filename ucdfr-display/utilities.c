@@ -21,11 +21,9 @@ ISR(TIMER1_COMPA_vect)
 
 
 
-ISR(INT1_vect)
+ISR(INT1_vect, ISR_BLOCK)
 {
-			PORTD |= (1 << 6);
-			PORTD &= ~(1 << 6);
-	//EIMSK ^= (1);
+	PORTD &= ~(1 << 6);
 
 	if((millis() - last_button) > 10)
 	{
@@ -43,27 +41,21 @@ ISR(INT1_vect)
 
 		last_button = millis();
 	} // Debounce
-
-	//EIMSK |= (1);
 } // ISR(INT0) Button
 
 
 
 ISR(INT0_vect, ISR_BLOCK)
 {
-	//EIMSK ^= (2);
-
-	if((millis() - last_rev) > 50)
+	if((millis() - last_rev) > 75)
 	{
-			if(!(PINB&(1<<7)))
-				inputs.detent--;
-			else
-				inputs.detent++;
-		
-			last_rev = millis();
+		if(!(PINB&(1<<7)))
+			inputs.detent--;
+		else
+			inputs.detent++;
+	
+		last_rev = millis();
 	}// Debounce
-
-	//EIMSK |= (2);
 } // ISR(INT1) A pin
 
 

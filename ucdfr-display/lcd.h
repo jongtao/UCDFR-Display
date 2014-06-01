@@ -2,24 +2,7 @@
 #define LCD_H
 #include <avr/io.h>
 
-/* For prototype
-DI	PF4
-RW	PF3
-E		PF2
-DB0	PF1
-DB1	PF0
-DB2 PE6
-DB3 PE7
-DB4 PB0
-DB5	PB1
-DB6 PB2
-DB7	PB3
-CS1	PB4
-CS2	PB5
-RST	PB6
-*/
-
-/* Actual
+/* LCD pins
 DI	PB6
 RW	PB5
 E		PB4

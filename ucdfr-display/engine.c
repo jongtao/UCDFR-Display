@@ -42,13 +42,13 @@ void engine_logic(Data *data, Inputs *inputs)
 	switch(data->state_level)
 	{
 		case 0:
-			primary_logic(data, inputs);
+			engine_logic_0(data, inputs);
 			break;
 		case 1:
-			selection_logic(data, inputs);
+			engine_logic_1(data, inputs);
 			break;
 		case 2:
-			configuration_logic(data, inputs);
+			engine_logic_2(data, inputs);
 			break;
 	};
 } // engine_process_data()
@@ -56,7 +56,7 @@ void engine_logic(Data *data, Inputs *inputs)
 
 
 
-void primary_logic(Data *data, Inputs *inputs)
+void engine_logic_0(Data *data, Inputs *inputs)
 {
 	if(inputs->num_button > data->last_button_num)
 	{
@@ -66,12 +66,12 @@ void primary_logic(Data *data, Inputs *inputs)
 	} // if button increased
 
 	rotary_logic(data, inputs, data->state_level, 2);
-} // primary_logic()
+} // engine_logic_0()
 
 
 
 
-void selection_logic(Data *data, Inputs *inputs)
+void engine_logic_1(Data *data, Inputs *inputs)
 {
 	if(inputs->num_button > data->last_button_num)
 	{
@@ -95,11 +95,11 @@ void selection_logic(Data *data, Inputs *inputs)
 	} // if button increased
 
 	rotary_logic(data, inputs, data->state_level, 4);
-} // selection_logic()
+} // engine_logic_1()
 
 
 
-void configuration_logic(Data *data, Inputs *inputs)
+void engine_logic_2(Data *data, Inputs *inputs)
 {
 	if(inputs->num_button > data->last_button_num)
 	{
@@ -121,7 +121,7 @@ void configuration_logic(Data *data, Inputs *inputs)
 	} // if button increased
 
 	rotary_logic(data, inputs, data->state_level, F_SEVEN);
-} // configuration_logic()
+} // engine_logic_2()
 
 
 
@@ -161,7 +161,6 @@ void engine_put_outputs()
 void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 {
 	//Inputs inputs = get_inputs();
-	char string[256];
 	graphics_clear_buffer(lcdBuffer);
 	/*
 	graphics_clear_buffer(lcdBuffer);
@@ -185,80 +184,95 @@ void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 */
 
 	if(data->state_level == 0)
-	{
-		//sprintf(string, "State 0: %d", data->state[0]);
-		sprintf(string, "%d", data->usart_data.speed);
-		graphics_num(lcdBuffer, 0, 0, string);
-		graphics_print(lcdBuffer, 105, 20, "mph");
-		graphics_print(lcdBuffer, 0, 46, "Temp: 40C (ok)\nTorque Bias: 60%");
-	} // LEVEL 0
+		engine_graphics_0(lcdBuffer, data);
 
 	if(data->state_level == 1)
-	{
-		graphics_print(lcdBuffer, 0, 0,  "    CONFIGURATION");
-		graphics_print(lcdBuffer, 0, 9,  " < Back");
-		graphics_print(lcdBuffer, 0, 18, "   Screen 1 Config >");
-		graphics_print(lcdBuffer, 0, 27, "   Screen 2 Config >");
-		graphics_print(lcdBuffer, 0, 36, "   Screen 3 Config >");
-		graphics_print(lcdBuffer, 0, 45, "   Miscellaneous   >");
-
-		graphics_rect(lcdBuffer,
-			12, 9*(1 + data->state[data->state_level]), 102, 8, XOR);
-
-		sprintf(string, "usart: %s", data->test_string);
-		graphics_print(lcdBuffer, 0, 54, string);
-	} // LEVEL 1
-
-
+		engine_graphics_1(lcdBuffer, data);
 
 	if(data->state_level == 2)
-	{
-		uint8_t i;
-		uint8_t j;
-		uint8_t scroll_level = 0;
-		char number[2] = {0,0};
-
-		if(data->state[1] == S2_MISC)
-		{
-			sprintf(string, "usart: %s", data->test_string);
-			graphics_print(lcdBuffer, 0, 0, string);
-		} // if MISC
-		else
-		{
-
-			i = 1;
-			graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), " < Back");
-			graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), "   LED Bar         >");
-			graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), "   Big Field       >");
-
-			for(j=1; j<8; j++)
-			{
-				*number = '0' + j;
-				graphics_print(lcdBuffer, 0, 9*(i-scroll_level), "   Field ");
-				graphics_print(lcdBuffer, 54, 9*(i-scroll_level), number);
-				graphics_print(lcdBuffer, 114, 9*(i++-scroll_level), ">");
-			}
-
-			graphics_rect(lcdBuffer,
-				12, 9*(1 + data->state[data->state_level]-scroll_level), 102, 8, XOR);
-
-			graphics_rect(lcdBuffer, 0, 0, 128, 8, ZERO);	// wipe title background
-
-			switch(data->state[1])
-			{
-				case S2_1_CONF:
-					graphics_print(lcdBuffer, 0, 0,  "   SCREEN 1 CONFIG");
-					break;
-				case S2_2_CONF:
-					graphics_print(lcdBuffer, 0, 0,  "   SCREEN 2 CONFIG");
-					break;
-				case S2_3_CONF:
-					graphics_print(lcdBuffer, 0, 0,  "   SCREEN 3 CONFIG");
-					break;
-			};
-		} // if not MISC
-	} // LEVEL 2
-	
-
+		engine_graphics_2(lcdBuffer, data);
 } // engine_graphics()
 
+
+
+
+void engine_graphics_0(uint8_t lcdBuffer[2][8][64], Data *data)
+{
+	char string[256];
+	//sprintf(string, "State 0: %d", data->state[0]);
+	sprintf(string, "%d", data->usart_data.speed);
+	graphics_num(lcdBuffer, 0, 0, string);
+	graphics_print(lcdBuffer, 105, 20, "mph");
+	graphics_print(lcdBuffer, 0, 46, "Temp: 40C (ok)\nTorque Bias: 60%");
+} // engine_graphics_0
+
+
+
+void engine_graphics_1(uint8_t lcdBuffer[2][8][64], Data *data)
+{
+	char string[256];
+	graphics_print(lcdBuffer, 0, 0,  "    CONFIGURATION");
+	graphics_print(lcdBuffer, 0, 9,  " < Back");
+	graphics_print(lcdBuffer, 0, 18, "   Screen 1 Config >");
+	graphics_print(lcdBuffer, 0, 27, "   Screen 2 Config >");
+	graphics_print(lcdBuffer, 0, 36, "   Screen 3 Config >");
+	graphics_print(lcdBuffer, 0, 45, "   Miscellaneous   >");
+
+	graphics_rect(lcdBuffer,
+		12, 9*(1 + data->state[data->state_level]), 102, 8, XOR);
+
+	sprintf(string, "usart: %s", data->test_string);
+	graphics_print(lcdBuffer, 0, 54, string);
+} // engine_graphics_1()
+
+
+
+void engine_graphics_2(uint8_t lcdBuffer[2][8][64], Data *data)
+{
+	char string[256];
+	uint8_t i;
+	uint8_t j;
+	uint8_t scroll_level = 0;
+	char number[2] = {0,0};
+
+	if(data->state[1] == S2_MISC)
+	{
+		sprintf(string, "usart: %s", data->test_string);
+		graphics_print(lcdBuffer, 0, 0, string);
+	} // if MISC
+	else
+	{
+
+		i = 1;
+		graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), " < Back");
+		graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), "   LED Bar         >");
+		graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), "   Big Field       >");
+
+		for(j=1; j<8; j++)
+		{
+			*number = '0' + j;
+			graphics_print(lcdBuffer, 0, 9*(i-scroll_level), "   Field ");
+			graphics_print(lcdBuffer, 54, 9*(i-scroll_level), number);
+			graphics_print(lcdBuffer, 114, 9*(i++-scroll_level), ">");
+		}
+
+		graphics_rect(lcdBuffer,
+			12, 9*(1 + data->state[data->state_level]-scroll_level), 102, 8, XOR);
+
+		graphics_rect(lcdBuffer, 0, 0, 128, 8, ZERO);	// wipe title background
+
+		switch(data->state[1])
+		{
+			case S2_1_CONF:
+				graphics_print(lcdBuffer, 0, 0,  "   SCREEN 1 CONFIG");
+				break;
+			case S2_2_CONF:
+				graphics_print(lcdBuffer, 0, 0,  "   SCREEN 2 CONFIG");
+				break;
+			case S2_3_CONF:
+				graphics_print(lcdBuffer, 0, 0,  "   SCREEN 3 CONFIG");
+				break;
+		};
+	} // if not MISC
+
+} // engine_graphics_2()

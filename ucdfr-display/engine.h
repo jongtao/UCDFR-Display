@@ -1,17 +1,11 @@
 #ifndef ENGINE_H
 #define ENGINE_H
-/* Button Pins
-
-Button	PC0
-A				PE0
-B				PE1
-
-*/
 
 #include <stdint.h>
 #include <stdio.h>
 #include "graphics.h"
 #include "utilities.h"
+
 
 
 // State Levels: Primary -> Selection -> Screen -> Things
@@ -142,22 +136,21 @@ typedef struct
 
 
 
-
-
-
-
 void engine_init();
 void engine_get_inputs(Data *data, Inputs *inputs);
 
 void engine_logic(Data *data, Inputs *inputs);
-void primary_logic(Data *data, Inputs *inputs);
-void selection_logic(Data *data, Inputs *inputs);
-void configuration_logic(Data *data, Inputs *inputs);
+void engine_logic_0(Data *data, Inputs *inputs);
+void engine_logic_1(Data *data, Inputs *inputs);
+void engine_logic_2(Data *data, Inputs *inputs);
 void rotary_logic(Data *data, Inputs *inputs, uint8_t state_level,
 	uint8_t most);
 
 void engine_put_outputs();
 void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data);
+void engine_graphics_0(uint8_t lcdBuffer[2][8][64], Data *data);
+void engine_graphics_1(uint8_t lcdBuffer[2][8][64], Data *data);
+void engine_graphics_2(uint8_t lcdBuffer[2][8][64], Data *data);
 
 
 

@@ -47,7 +47,7 @@ ISR(INT1_vect, ISR_BLOCK)
 
 ISR(INT0_vect, ISR_BLOCK)
 {
-	if((millis() - last_rev) > 75)
+	if((millis() - last_rev) > 100)
 	{
 		if(!(PINB&(1<<7)))
 			inputs.detent--;

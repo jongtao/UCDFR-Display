@@ -2,6 +2,9 @@
 
 
 
+uint8_t scroll_level = 0;
+
+
 
 void engine_init(Data *data)
 {
@@ -112,8 +115,9 @@ void engine_logic_2(Data *data, Inputs *inputs)
 				data->state[data->state_level] = S1_SCREEN_ONE;
 				break;
 			case F_LED: case F_BIG: case F_ONE: case F_TWO: case F_THREE:
-			case F_FOUR: case F_FIVE:case F_SIX: case F_SEVEN:
+			case F_FOUR: case F_FIVE: case F_SIX: case F_SEVEN:
 				data->state_level = 2;
+				scroll_level = 0;
 				break;
 		};
 
@@ -148,6 +152,10 @@ void rotary_logic(Data *data, Inputs *inputs, uint8_t state_level,
 				data->state[state_level]--;
 		} // clockwise
 } // rotary_logic()
+
+
+
+/* BEGIN GRAPHICS*/
 
 
 
@@ -195,7 +203,6 @@ void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 
 
 
-
 void engine_graphics_0(uint8_t lcdBuffer[2][8][64], Data *data)
 {
 	char string[256];
@@ -232,7 +239,6 @@ void engine_graphics_2(uint8_t lcdBuffer[2][8][64], Data *data)
 	char string[256];
 	uint8_t i;
 	uint8_t j;
-	uint8_t scroll_level = 0;
 	char number[2] = {0,0};
 
 	if(data->state[1] == S2_MISC)
@@ -242,6 +248,15 @@ void engine_graphics_2(uint8_t lcdBuffer[2][8][64], Data *data)
 	} // if MISC
 	else
 	{
+		// Scroll
+		if(data->state[data->state_level] > 5 + scroll_level)
+			scroll_level++;
+		else
+			if(data->state[data->state_level] < scroll_level)
+				scroll_level--;
+
+
+		// Text
 
 		i = 1;
 		graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), " < Back");
@@ -274,5 +289,4 @@ void engine_graphics_2(uint8_t lcdBuffer[2][8][64], Data *data)
 				break;
 		};
 	} // if not MISC
-
 } // engine_graphics_2()

@@ -21,19 +21,21 @@ ISR(TIMER1_COMPA_vect)
 
 
 
-ISR(INT0_vect)
+ISR(INT1_vect)
 {
-	EIMSK ^= (1);
+			PORTD |= (1 << 6);
+			PORTD &= ~(1 << 6);
+	//EIMSK ^= (1);
 
 	if((millis() - last_button) > 10)
 	{
-		if(PIND & (1 << 0))
+		if(PIND & (1 << 1))
 		{
-			PORTD &= ~(1 << 6);
+			PORTD |= (1 << 6);
 			inputs.button = 0;
 		} // OFF
 
-		if(!(PIND & (1 << 0)) && !inputs.button)
+		if(!(PIND & (1 << 1)) && !inputs.button)
 		{
 			inputs.button = 1;
 			inputs.num_button++;
@@ -42,16 +44,16 @@ ISR(INT0_vect)
 		last_button = millis();
 	} // Debounce
 
-	EIMSK |= (1);
+	//EIMSK |= (1);
 } // ISR(INT0) Button
 
 
 
-ISR(INT1_vect)
+ISR(INT0_vect, ISR_BLOCK)
 {
-	EIMSK ^= (2);
+	//EIMSK ^= (2);
 
-	if(((millis() - last_rev) > 50))
+	if((millis() - last_rev) > 50)
 	{
 			if(!(PINB&(1<<7)))
 				inputs.detent--;
@@ -61,7 +63,7 @@ ISR(INT1_vect)
 			last_rev = millis();
 	}// Debounce
 
-	EIMSK |= (2);
+	//EIMSK |= (2);
 } // ISR(INT1) A pin
 
 
@@ -70,7 +72,6 @@ ISR(USART1_RX_vect, ISR_BLOCK)
 {
 	unsigned int i;
 
-	PORTD |= (1<<6);
 	usart_tmp_buffer[string_end] = UDR1;
 		
 	if(usart_tmp_buffer[string_end] == '\n')
@@ -87,7 +88,6 @@ ISR(USART1_RX_vect, ISR_BLOCK)
 		else
 			string_end++;
 	
-	PORTD &= ~(1<<6);
 } // ISR(USART1) USART
 
 
@@ -105,7 +105,7 @@ void utilities_init()
 	PORTB |= (1 << 7);	// PB7
 
 	// Input as external interrupts
-	EICRA |= (1 << ISC00) | (1 << ISC11);
+	EICRA |= (1 << ISC01) | (1 << ISC10);
 	EIMSK |= (3);
 
 	DDRF |= (1 << 5); // buzzer
@@ -129,12 +129,12 @@ void utilities_init()
 	DDRD |= 0xF0;				// D4-D7
 	DDRE |= 0x03;				// E0-E1
 	DDRC |= 0xFF;				// C0-C7
-
-	/* Test LEDs */
+/*
+	//Test LEDs
 	PORTD |= 0xF0;				// D4-D7
 	PORTE |= 0x03;				// E0-E1
 	PORTC |= 0xFF;				// C0-C7
-
+*/
 	sei();							// Enable interrupts
 } // timer_init()
 

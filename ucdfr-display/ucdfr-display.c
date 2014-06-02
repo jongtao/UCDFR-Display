@@ -64,7 +64,7 @@ int main()
 	{
 		engine_get_inputs(&data, &inputs);
 		engine_logic(&data, &inputs);
-		//engine_put_outputs();
+		engine_put_outputs();
 /*
  		milliseconds_current = millis();
 		if(milliseconds_current - milliseconds_since > 50)

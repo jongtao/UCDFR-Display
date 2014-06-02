@@ -12,6 +12,7 @@
 #define USART_BAUDRATE ((F_CPU/(USART_BAUD * 16UL)) - 1)
 
 #define USART_STRING_LENGTH 16
+#define USART_SEND_LENGTH 16
 
 
 
@@ -66,6 +67,8 @@ void utilities_init();				// Initialize low level functions
 unsigned long millis();				// Returns ms since utility init
 Inputs get_inputs();					// Gets physical user inputs
 char* get_usart(char *string);// Copies buffer into string
+void wait_usart_empty();			// Wait for empty usart buffer
+void put_usart(char *string);	// Sends string through USART
 void put_leds(uint16_t leds);	// 14 LED bargraph. LSB is right. Right aligned
 
 #endif

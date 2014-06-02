@@ -58,6 +58,7 @@ ISR(INT0_vect, ISR_BLOCK)
 ISR(USART1_RX_vect, ISR_BLOCK)
 {
 	uint16_t i;
+	while(!(UCSR1A&(1<<RXC1))); // wait for complete transmission
 	uint8_t tmp_byte = UDR1;
 
 	switch(usart_state)
@@ -176,12 +177,49 @@ char* get_usart(char *string)
 
 	ATOMIC_BLOCK(ATOMIC_FORCEON)
 	{
-		for(i = 0; i + 1 < USART_STRING_LENGTH; i++)
+		for(i=0; i<USART_STRING_LENGTH; i++)
 			string[i] = usart_buffer[i]; // Copy buffer to string
 	} // atomic
 
 	return string;
 } // get_usart()
+
+
+
+void wait_usart_empty()
+{
+	while(!(UCSR1A&(1<<UDRE1)));	// wait for empty buffer
+} // wait_usart_empty()
+
+
+
+void put_usart(char *string)
+{
+	unsigned int i;
+	
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		wait_usart_empty();			// wait for empty buffer before sending
+		UDR1 = 0x7E;						// send begin flag
+
+		for(i=0; i<USART_SEND_LENGTH; i++)
+		{
+			if(string[i] == 0x7E || string[i] == 0x7D)
+			{
+				wait_usart_empty();
+				UDR1 = 0x7D;							// send escape flag
+				wait_usart_empty();
+				UDR1 = string[i] ^ 0x20;	// send encoded byte
+			} // if need to escape
+			else
+			{
+				wait_usart_empty();
+				UDR1 = string[i]; // Copy buffer to string
+			} // send normally
+		} // for i
+	} // ATOMIC
+	
+} // put_usart()
 
 
 

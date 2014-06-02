@@ -161,7 +161,11 @@ void rotary_logic(Data *data, Inputs *inputs, uint8_t state_level,
 
 void engine_put_outputs()
 {
-	put_leds(0x0000);
+	
+	char *asdf = "ABCDEFGHIJKLMNOQQRSTUVWXYZ";
+	put_usart(asdf); // FIXME test usart send
+		
+	put_leds(0x00);
 } // engine_put_outputs()
 
 
@@ -197,7 +201,7 @@ void engine_graphics_0(uint8_t lcdBuffer[2][8][64], Data *data)
 
 void engine_graphics_1(uint8_t lcdBuffer[2][8][64], Data *data)
 {
-	char string[256];
+	//char string[256];
 	graphics_print(lcdBuffer, 0, 0,  "    CONFIGURATION");
 	graphics_print(lcdBuffer, 0, 9,  " < Back");
 	graphics_print(lcdBuffer, 0, 18, "   Screen 1 Config >");

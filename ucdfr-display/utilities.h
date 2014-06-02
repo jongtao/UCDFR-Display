@@ -10,7 +10,8 @@
 #define CTC_COUNT (((F_CPU/1000)/8) - 1)
 #define USART_BAUD 9600
 #define USART_BAUDRATE ((F_CPU/(USART_BAUD * 16UL)) - 1)
-#define USART_STRING_LENGTH 256
+
+#define USART_STRING_LENGTH 16
 
 
 
@@ -32,9 +33,18 @@ C0-C7
 
 
 
+enum usart_state
+{
+	USART_WAIT,
+	USART_ACCEPT,
+	USART_ESCAPE
+}; // usart state
+
+
+
 typedef struct
 {
-	int button, num_button, detent;
+	int num_button, detent;
 } Inputs;
 
 

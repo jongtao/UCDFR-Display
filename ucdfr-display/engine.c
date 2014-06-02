@@ -31,7 +31,7 @@ void engine_get_inputs(Data *data, Inputs *inputs)
 	for(i = 0; i < USART_STRING_LENGTH; i++)
 		data->test_string[i] = usart_string[i];
 
-	data->test_string[255] = 0;
+	data->test_string[USART_STRING_LENGTH - 1] = 0;// FIXME end string
 	data->usart_data.speed = usart_string[0]; // FIXME test speed
 
 	// parse usart
@@ -208,8 +208,8 @@ void engine_graphics_1(uint8_t lcdBuffer[2][8][64], Data *data)
 	graphics_rect(lcdBuffer,
 		12, 9*(1 + data->state[data->state_level]), 102, 8, XOR);
 
-	sprintf(string, "usart: %s", data->test_string);
-	graphics_print(lcdBuffer, 0, 54, string);
+	//sprintf(string, "usart: %s", data->test_string);
+	//graphics_print(lcdBuffer, 0, 54, string);
 } // engine_graphics_1()
 
 

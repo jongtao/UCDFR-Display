@@ -165,7 +165,7 @@ void engine_put_outputs()
 	char *asdf = "ABCDEFGHIJKLMNOQQRSTUVWXYZ";
 	put_usart(asdf); // FIXME test usart send
 		
-	put_leds(0x00);
+	put_leds(0xFFFF);
 } // engine_put_outputs()
 
 

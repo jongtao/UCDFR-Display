@@ -132,6 +132,7 @@ void utilities_init()
 	DDRD |= 0xF0;				// D4-D7
 	DDRE |= 0x03;				// E0-E1
 	DDRC |= 0xFF;				// C0-C7
+
 /*
 	//Test LEDs
 	PORTD |= 0xF0;				// D4-D7
@@ -218,12 +219,11 @@ void put_usart(char *string)
 			} // send normally
 		} // for i
 	} // ATOMIC
-	
 } // put_usart()
 
 
 
-void put_leds(uint16_t leds)
+void put_leds(uint16_t leds) // expects the full 16 bits
 {
 	PORTD &= ~(0xF0);
 	PORTE &= ~(0x03);

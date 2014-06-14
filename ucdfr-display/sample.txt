@@ -1,0 +1,123 @@
+/* USART Recieving Interrupt */
+
+
+ISR(USART1_RX_vect, ISR_BLOCK)
+{
+	uint16_t i;
+	while(!(UCSR1A&(1<<RXC1))); // wait for complete transmission
+	uint8_t tmp_byte = UDR1;
+
+	switch(usart_state)
+	{
+		case USART_WAIT:
+			if(tmp_byte == 0x7E) usart_state = USART_ACCEPT;	// begin message
+			break;
+
+		case USART_ACCEPT:
+			if(tmp_byte == 0x7E)
+			{
+				string_end = 0;
+				usart_state = USART_WAIT;
+			} // invalid character
+			if(tmp_byte == 0x7D) usart_state = USART_ESCAPE;	// escape next char
+			else usart_tmp_buffer[string_end++] = tmp_byte;		// write char
+			break;
+
+		case USART_ESCAPE:
+			usart_tmp_buffer[string_end++] = tmp_byte ^ 0x20; // decode/write char
+			usart_state = USART_ACCEPT;
+			break;
+	}; // switch usart_state
+
+	if(string_end == USART_STRING_LENGTH)
+	{
+		for(i = 0; i < USART_STRING_LENGTH; i++)
+			usart_buffer[i] = usart_tmp_buffer[i]; // copy completed string
+		
+		string_end = 0;
+		usart_state = USART_WAIT;
+	} // if end of message
+} // ISR(USART1) USART
+
+
+PSUEDO VERSION
+
+Receive_Usart()
+{
+	if we are WAITING for the begin flag and got BEGIN FLAG
+		start ACCEPTING
+	else
+		if we are ACCEPTING
+		{
+			if got ESCAPE FLAG
+				start ESCAPING the next character
+			else
+				write received character to buffer
+		}
+		else
+			if we are ESCAPING
+			{
+				XOR received character with 0x20
+				write it to buffer
+				we are now ACCEPTING
+			}
+
+	if we reached expected length of message
+		copy buffer to a stable location
+}
+
+
+
+
+
+
+
+/* Usart Send Fuction */
+
+void put_usart(char *string)
+{
+	unsigned int i;
+	
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		wait_usart_empty();			// wait for empty buffer before sending
+		UDR1 = 0x7E;						// send begin flag
+
+		for(i=0; i<USART_SEND_LENGTH; i++)
+		{
+			if(string[i] == 0x7E || string[i] == 0x7D)
+			{
+				wait_usart_empty();
+				UDR1 = 0x7D;							// send escape flag
+				wait_usart_empty();
+				UDR1 = string[i] ^ 0x20;	// send encoded byte
+			} // if need to escape
+			else
+			{
+				wait_usart_empty();
+				UDR1 = string[i]; // Copy buffer to string
+			} // send normally
+		} // for i
+	} // ATOMIC
+} // put_usart()
+
+
+PSUEDO VERSION
+
+Send_Usart()
+{
+	Send begin flag
+
+	for every byte in the string
+	{
+		if the character is a flag
+		{
+			send escape flag
+			send character XORed with 0x20
+		}
+		else
+			send the character
+	}
+}
+
+

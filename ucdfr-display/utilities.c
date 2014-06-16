@@ -58,8 +58,8 @@ ISR(INT0_vect, ISR_BLOCK)
 ISR(USART1_RX_vect, ISR_BLOCK)
 {
 	uint16_t i;
-	while(!(UCSR1A&(1<<RXC1))); // wait for complete transmission
 	uint8_t tmp_byte = UDR1;
+	//while(!(UCSR1A&(1<<RXC1))); // wait for complete transmission
 
 	switch(usart_state)
 	{
@@ -72,7 +72,7 @@ ISR(USART1_RX_vect, ISR_BLOCK)
 			{
 				string_end = 0;
 				usart_state = USART_WAIT;
-			} // invalid character
+			} // invalid character. discard string and start over
 			if(tmp_byte == 0x7D) usart_state = USART_ESCAPE;	// escape next char
 			else usart_tmp_buffer[string_end++] = tmp_byte;		// write char
 			break;

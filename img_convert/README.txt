@@ -13,3 +13,4 @@ png2hex is intended for converting images into a format that is to be written
 into an embedded system's memory via C. In practical use, one would convert the
 png image, then copy the hex ouput into a C program as a C constant.
 
+Png images should have horizontal dimension in multiples of 8 pixels.

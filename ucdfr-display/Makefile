@@ -51,4 +51,4 @@ cleanmake: clean all
 
 
 clean:
-	rm -f *.o ucdfrdisplay.elf
+	rm -f *.o ucdfrdisplay.elf *.hex

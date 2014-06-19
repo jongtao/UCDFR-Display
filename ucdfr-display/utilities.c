@@ -172,7 +172,7 @@ Inputs get_inputs()
 
 
 
-char* get_usart(char *string)
+uint8_t* get_usart(uint8_t *string)
 {
 	unsigned int i;
 
@@ -194,7 +194,7 @@ void wait_usart_empty()
 
 
 
-void put_usart(char *string)
+void put_usart(uint8_t *string)
 {
 	unsigned int i;
 	

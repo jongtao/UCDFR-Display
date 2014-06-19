@@ -12,7 +12,7 @@
 #include <avr/pgmspace.h>
 #include "utilities.h"
 
-
+#define LINE_HEIGHT 9;
 
 enum modes
 {

@@ -5,6 +5,29 @@
 uint8_t scroll_level = 0;
 
 
+// Flappy
+#define GRAV 1
+#define SCROLL_SPEED 1
+#define JUMP -4
+#define PLAYER_SIZE 5
+#define NUM_PILLARS 2
+#define PILLAR_WIDTH 5
+#define PILLAR_GAP 20
+#define PILLAR_DENSITY 64
+#define SCROLL_DELAY 50
+#define DEATH_MARGIN 15
+#define PLAYER_HORI 2
+int player_vert;
+uint32_t player_score;
+int player_velocity;
+int pillars_vert[NUM_PILLARS];
+int pillars_hori[NUM_PILLARS];
+unsigned long last_millis = 0;
+unsigned long last_rot;
+uint8_t gameover;
+// End Flappy
+
+
 
 void engine_init(Data *data)
 {
@@ -12,10 +35,11 @@ void engine_init(Data *data)
 	data->last_button_num = data->last_detent_num = data->state_level = 0;
 	data->state[0] = 0;
 
+/*
 	int i =0;
 	for(i = 0; i<256; i++)
 		data->test_string[i] = 0; // FIXME
-
+*/
 } // engine_init()
 
 
@@ -23,18 +47,49 @@ void engine_init(Data *data)
 void engine_get_inputs(Data *data, Inputs *inputs)
 {
 	unsigned int i;
-	char usart_string[USART_STRING_LENGTH];
+	uint8_t usart_string[USART_STRING_LENGTH];
 	*inputs = get_inputs();
 	get_usart(usart_string);
 
-	
+/*	
 	for(i = 0; i < USART_STRING_LENGTH; i++)
 		data->test_string[i] = usart_string[i];
-
-	data->test_string[USART_STRING_LENGTH - 1] = 0;// FIXME end string
-	data->usart_data.speed = usart_string[0]; // FIXME test speed
+*/
+	/*data->test_string[USART_STRING_LENGTH - 1] = 0;// FIXME end string
+	data->usart_data.speed = usart_string[0]; // FIXME test speed*/
 
 	// parse usart
+	i = 0;
+
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		data->usart_data.state_of_charge = usart_string[i++];
+
+		data->usart_data.status = (uint16_t)usart_string[i++] << 8;
+		data->usart_data.status |= (uint16_t)usart_string[i++];
+
+		data->usart_data.balance_mV = (uint16_t)usart_string[i++] << 8;
+		data->usart_data.balance_mV |= (uint16_t)usart_string[i++];
+
+		data->usart_data.remaining_AH = (uint16_t)usart_string[i++] << 8;
+		data->usart_data.remaining_AH |= (uint16_t)usart_string[i++];
+
+		short tmp = 0;
+		tmp = (uint16_t)usart_string[i++] << 8;
+		tmp |= (uint16_t)usart_string[i++];
+		data->usart_data.current_A = (short)tmp;
+		/*
+		data->usart_data.current_A = (uint16_t)usart_string[i++] << 8;
+		data->usart_data.current_A |= (uint16_t)usart_string[i++];
+		data->usart_data.current_A = (short)data->usart_data.current_A;
+*/
+		data->usart_data.temp_C = usart_string[i++];
+
+		data->usart_data.voltage_mV = (uint32_t)usart_string[i++] << 24;
+		data->usart_data.voltage_mV |= ((uint32_t)usart_string[i++]) << 16;
+		data->usart_data.voltage_mV |= ((uint32_t)usart_string[i++]) << 8;
+		data->usart_data.voltage_mV |= ((uint32_t)usart_string[i++]);
+	} // ATOMIC BLOCK
 } // engine_get_inputs()
 
 
@@ -66,6 +121,7 @@ void engine_logic_0(Data *data, Inputs *inputs)
 		data->last_button_num = inputs->num_button;
 		data->state_level = 1;
 		data->state[data->state_level] = 0;
+		flappy_init(data, inputs);
 	} // if button increased
 
 	rotary_logic(data, inputs, data->state_level, 2);
@@ -79,7 +135,9 @@ void engine_logic_1(Data *data, Inputs *inputs)
 	if(inputs->num_button > data->last_button_num)
 	{
 		data->last_button_num = inputs->num_button;
-
+		
+		data->state_level = 0;
+		/*
 		switch(data->state[data->state_level])
 		{
 			case S2_BACK:
@@ -93,12 +151,91 @@ void engine_logic_1(Data *data, Inputs *inputs)
 				data->state_level = 2;
 				break;
 		};
+		*/
 		
 		data->state[data->state_level] = 0; // set to first option
 	} // if button increased
 
+	flappy_logic(data, inputs);
 	rotary_logic(data, inputs, data->state_level, 4);
 } // engine_logic_1()
+
+
+
+void flappy_init(Data *data, Inputs *inputs)
+{
+	uint8_t i;
+	uint16_t j;
+	srand(millis());
+
+	player_vert = 24;
+	player_score = 0;
+	last_rot = inputs->detent;
+	gameover = 0;
+
+	for(i=0; i<NUM_PILLARS; i++)
+		pillars_vert[i] = rand()%(65-2*PILLAR_GAP) + PILLAR_GAP;
+	
+	j=128;
+	for(i=0; i<NUM_PILLARS; i++)
+	{
+		pillars_hori[i] = j;
+		j+= PILLAR_DENSITY;
+	}
+} // flappy_init()
+
+
+
+void flappy_logic(Data *data, Inputs *inputs)
+{
+	uint8_t i;
+	srand(millis());
+	rand();
+	player_velocity += GRAV;
+	player_vert += player_velocity;
+
+	if(!gameover)
+	{
+		if(inputs->detent != last_rot)
+		{
+			last_rot = inputs->detent;
+				player_velocity = JUMP;
+		}
+	}
+	else
+		player_vert = 70;
+	if(player_velocity > 2)
+		player_velocity = 2;
+
+	if(player_vert < -DEATH_MARGIN || player_vert > 64+DEATH_MARGIN)
+		gameover = 1;
+
+	for(i=0; i<NUM_PILLARS; i++)
+	{
+		pillars_hori[i] -= SCROLL_SPEED;
+		if(pillars_hori[i] < -PILLAR_WIDTH)
+		{
+			pillars_hori[i] = 129;
+			pillars_vert[i] = rand()%(65-2*PILLAR_GAP) + PILLAR_GAP;
+
+			if(!gameover)
+				player_score++;
+		}
+	} // pillar horizontal
+
+	for(i=0; i<NUM_PILLARS; i++)
+	{
+		if(PLAYER_HORI+PLAYER_SIZE > pillars_hori[i] &&
+			PLAYER_HORI < pillars_hori[i] + PILLAR_WIDTH)
+			if(player_vert < pillars_vert[i] ||
+				player_vert + PLAYER_SIZE > pillars_vert[i] + PILLAR_GAP)
+				gameover = 1;
+
+
+	} // for every pillar
+
+	_delay_ms(SCROLL_DELAY);
+} // flappy_logic()
 
 
 
@@ -162,10 +299,10 @@ void rotary_logic(Data *data, Inputs *inputs, uint8_t state_level,
 void engine_put_outputs()
 {
 	
-	char *asdf = "ABCDEFGHIJKLMNOQQRSTUVWXYZ";
-	put_usart(asdf); // FIXME test usart send
+	//char *asdf = "ABCDEFGHIJKLMNOQQRSTUVWXYZ";
+	//put_usart(asdf); // FIXME test usart send
 		
-	put_leds(0xFFFF);
+	//put_leds(0xFFFF);
 } // engine_put_outputs()
 
 
@@ -189,18 +326,77 @@ void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 void engine_graphics_0(uint8_t lcdBuffer[2][8][64], Data *data)
 {
 	char string[256];
-	sprintf(string, "%d", data->usart_data.speed);
-	graphics_num(lcdBuffer, 0, 0, string);
-	graphics_print(lcdBuffer, 105, 20, "mph");
-	graphics_print(lcdBuffer, 0, 46, "Temp: 40C (ok)");
-	sprintf(string, "Screen: %d", data->state[data->state_level]);
-	graphics_print(lcdBuffer, 0, 55, string);
+	uint16_t led_string = 0;
+	uint8_t	led_shift = 0;
+	uint8_t percent = 0;
+	uint16_t i = 0;
+
+	switch(data->state[data->state_level])
+	{
+		case 0:
+			percent = (data->usart_data.voltage_mV*100)/PACK_MAX_MV;
+			led_shift = percent / 14;
+
+			for(i=13; i>13+led_shift; i--)
+				led_string |= 1<<i;
+
+			put_leds(led_string);
+
+			sprintf(string, "%3lu", data->usart_data.voltage_mV/1000);
+			graphics_num(lcdBuffer, 0, 0, string);
+			graphics_print(lcdBuffer, 95, 20, "Volts");
+			sprintf(string, "Current: %d A", data->usart_data.current_A);
+			graphics_print(lcdBuffer, 0, 55, string);
+			sprintf(string, "Pack Balance: %u mV", data->usart_data.balance_mV);
+			graphics_print(lcdBuffer, 0, 46, string);
+			//graphics_print(lcdBuffer, 0, 46, "Temp: 40C (ok)");
+			break;
+		case 1:
+			put_leds(0);
+			sprintf(string, "%3u%%",
+				data->usart_data.state_of_charge);
+			graphics_num(lcdBuffer, 0, 0, string);
+			graphics_print(lcdBuffer, 110, 0, "SOC");
+			sprintf(string, "Temperature: %u C", data->usart_data.temp_C);
+			graphics_print(lcdBuffer, 0, 46, string);
+			sprintf(string, "Voltage: %lu mV", data->usart_data.voltage_mV);
+			graphics_print(lcdBuffer, 0, 55, string);
+			break;
+		case 2:
+			put_leds(0);
+			sprintf(string, "State of Charge: %u%%",data->usart_data.state_of_charge);
+			graphics_print(lcdBuffer, 0, i, string);
+			i += LINE_HEIGHT;
+			sprintf(string, "Status: 0x%04X",data->usart_data.status);
+			graphics_print(lcdBuffer, 0, i, string);
+			i += LINE_HEIGHT;
+			sprintf(string, "Balance: %u mV",data->usart_data.balance_mV);
+			graphics_print(lcdBuffer, 0, i, string);
+			i += LINE_HEIGHT;
+			sprintf(string, "Remaining: %u AH",data->usart_data.remaining_AH);
+			graphics_print(lcdBuffer, 0, i, string);
+			i += LINE_HEIGHT;
+			sprintf(string, "Current: %d A",data->usart_data.current_A);
+			graphics_print(lcdBuffer, 0, i, string);
+			i += LINE_HEIGHT;
+			sprintf(string, "Temperature: %u C",data->usart_data.temp_C);
+			graphics_print(lcdBuffer, 0, i, string);
+			i += LINE_HEIGHT;
+			sprintf(string, "Voltage: %lu mV",
+				(unsigned long)data->usart_data.voltage_mV);
+			graphics_print(lcdBuffer, 0, i, string);
+			break;
+	}; // switch state
+	
 } // engine_graphics_0
 
 
 
 void engine_graphics_1(uint8_t lcdBuffer[2][8][64], Data *data)
 {
+	flappy_graphics(lcdBuffer, data);
+
+	/*
 	//char string[256];
 	graphics_print(lcdBuffer, 0, 0,  "    CONFIGURATION");
 	graphics_print(lcdBuffer, 0, 9,  " < Back");
@@ -214,7 +410,39 @@ void engine_graphics_1(uint8_t lcdBuffer[2][8][64], Data *data)
 
 	//sprintf(string, "usart: %s", data->test_string);
 	//graphics_print(lcdBuffer, 0, 54, string);
+	*/
 } // engine_graphics_1()
+
+
+
+void flappy_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
+{
+	uint8_t i;
+	char string[32];
+	//text
+	sprintf(string, "Score: %lu", player_score);
+	graphics_print(lcdBuffer, 0, 0, string);
+	if(gameover)
+	{
+		sprintf(string, "GAME OVER");
+		graphics_print(lcdBuffer, 37, 28, string);
+	}
+
+	//bird
+	graphics_rect(lcdBuffer,
+			PLAYER_HORI, player_vert,
+			PLAYER_SIZE, PLAYER_SIZE, XOR);
+	//pillar
+	for(i=0; i<NUM_PILLARS; i++)
+	{
+		graphics_rect(lcdBuffer,
+			pillars_hori[i], 0,
+			PILLAR_WIDTH, pillars_vert[i], XOR);
+		graphics_rect(lcdBuffer,
+			pillars_hori[i], pillars_vert[i] + PILLAR_GAP,
+			PILLAR_WIDTH, 64, XOR);
+	} // for pillars
+} // flappy_graphics()
 
 
 
@@ -239,9 +467,7 @@ void engine_graphics_2(uint8_t lcdBuffer[2][8][64], Data *data)
 			if(data->state[data->state_level] < scroll_level)
 				scroll_level--;
 
-
 		// Text
-
 		i = 1;
 		graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), " < Back");
 		graphics_print(lcdBuffer, 0, 9*(i++-scroll_level), "   LED Bar         >");
@@ -273,4 +499,4 @@ void engine_graphics_2(uint8_t lcdBuffer[2][8][64], Data *data)
 				break;
 		};
 	} // if not MISC
-} // engine_graphics_2()
+} // engine_graphic`s_2()

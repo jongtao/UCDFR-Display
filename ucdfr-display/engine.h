@@ -3,8 +3,15 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <util/atomic.h>
+#include <util/delay.h>
+
+#include <stdlib.h>
+
 #include "graphics.h"
 #include "utilities.h"
+
+#define PACK_MAX_MV 116000
 
 
 
@@ -88,7 +95,7 @@ enum LEDThings
 };
 
 
-
+/*
 typedef struct
 {
 	int
@@ -108,6 +115,18 @@ typedef struct
 		ir_temp_left,
 		ir_temp_right;
 } UsartData;
+*/
+
+typedef struct
+{
+	uint8_t state_of_charge;
+	uint16_t status;
+	uint16_t balance_mV;
+	uint16_t remaining_AH;
+	short current_A;
+	uint8_t temp_C;
+	uint32_t voltage_mV;
+} UsartData; // struct Pack
 
 
 
@@ -129,7 +148,7 @@ typedef struct
 
 	UsartData usart_data;
 	//uint8_t usart_data_current;
-	char test_string[256]; // FIXME
+	uint8_t test_string[256]; // FIXME
 
 
 } Data;
@@ -143,6 +162,10 @@ void engine_logic(Data *data, Inputs *inputs);
 void engine_logic_0(Data *data, Inputs *inputs);
 void engine_logic_1(Data *data, Inputs *inputs);
 void engine_logic_2(Data *data, Inputs *inputs);
+
+void flappy_init(Data *data, Inputs *inputs);
+void flappy_logic(Data *data, Inputs *inputs);
+
 void rotary_logic(Data *data, Inputs *inputs, uint8_t state_level,
 	uint8_t most);
 
@@ -150,6 +173,7 @@ void engine_put_outputs();
 void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data);
 void engine_graphics_0(uint8_t lcdBuffer[2][8][64], Data *data);
 void engine_graphics_1(uint8_t lcdBuffer[2][8][64], Data *data);
+void flappy_graphics(uint8_t lcdBuffer[2][8][64], Data *data);
 void engine_graphics_2(uint8_t lcdBuffer[2][8][64], Data *data);
 
 

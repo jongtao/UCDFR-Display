@@ -8,7 +8,7 @@ uint8_t scroll_level = 0;
 // Flappy
 #define GRAV 1
 #define SCROLL_SPEED 1
-#define JUMP -4
+#define JUMP -3
 #define PLAYER_SIZE 5
 #define NUM_PILLARS 2
 #define PILLAR_WIDTH 5
@@ -325,15 +325,16 @@ void engine_graphics(uint8_t lcdBuffer[2][8][64], Data *data)
 
 void engine_graphics_0(uint8_t lcdBuffer[2][8][64], Data *data)
 {
-	char string[256];
-	uint16_t led_string = 0;
-	uint8_t	led_shift = 0;
-	uint8_t percent = 0;
+	char string[128];
+	//uint16_t led_string = 0;
+	//uint8_t	led_shift = 0;
+	//uint8_t percent = 0;
 	uint16_t i = 0;
 
 	switch(data->state[data->state_level])
 	{
 		case 0:
+		/*
 			percent = (data->usart_data.voltage_mV*100)/PACK_MAX_MV;
 			led_shift = percent / 14;
 
@@ -341,48 +342,54 @@ void engine_graphics_0(uint8_t lcdBuffer[2][8][64], Data *data)
 				led_string |= 1<<i;
 
 			put_leds(led_string);
+*/
+			sprintf(string, "Balance: %6u mV", data->usart_data.balance_mV);
+			graphics_print(lcdBuffer, 0, 0, string);
+			//graphics_print(lcdBuffer, 0, 46, "Temp: 40C (ok)");
+
+			sprintf(string, "Current: %6d A", data->usart_data.current_A);
+			graphics_print(lcdBuffer, 0, 9, string);
 
 			sprintf(string, "%3lu", data->usart_data.voltage_mV/1000);
-			graphics_num(lcdBuffer, 0, 0, string);
-			graphics_print(lcdBuffer, 95, 20, "Volts");
-			sprintf(string, "Current: %d A", data->usart_data.current_A);
-			graphics_print(lcdBuffer, 0, 55, string);
-			sprintf(string, "Pack Balance: %u mV", data->usart_data.balance_mV);
-			graphics_print(lcdBuffer, 0, 46, string);
-			//graphics_print(lcdBuffer, 0, 46, "Temp: 40C (ok)");
+			graphics_num(lcdBuffer, 35, 20, string);
+			graphics_print(lcdBuffer, 0, 34, "Volts");
+
 			break;
 		case 1:
 			put_leds(0);
-			sprintf(string, "%3u%%",
-				data->usart_data.state_of_charge);
-			graphics_num(lcdBuffer, 0, 0, string);
-			graphics_print(lcdBuffer, 110, 0, "SOC");
-			sprintf(string, "Temperature: %u C", data->usart_data.temp_C);
-			graphics_print(lcdBuffer, 0, 46, string);
-			sprintf(string, "Voltage: %lu mV", data->usart_data.voltage_mV);
-			graphics_print(lcdBuffer, 0, 55, string);
+			
+			sprintf(string, "Voltage: %6lu mV", data->usart_data.voltage_mV);
+			graphics_print(lcdBuffer, 0, 0, string);
+
+			sprintf(string, "Charge:  %6u%%",data->usart_data.state_of_charge);
+			graphics_print(lcdBuffer, 0, 9, string);
+
+			sprintf(string, "%3u", data->usart_data.temp_C);
+			graphics_num(lcdBuffer, 35, 20, string);
+			graphics_print(lcdBuffer, 0, 34, "Celsius");
+
 			break;
 		case 2:
 			put_leds(0);
-			sprintf(string, "State of Charge: %u%%",data->usart_data.state_of_charge);
+			sprintf(string, "Charge:  %6u%%",data->usart_data.state_of_charge);
 			graphics_print(lcdBuffer, 0, i, string);
 			i += LINE_HEIGHT;
-			sprintf(string, "Status: 0x%04X",data->usart_data.status);
+			sprintf(string, "Status:       0x%04X",data->usart_data.status);
 			graphics_print(lcdBuffer, 0, i, string);
 			i += LINE_HEIGHT;
-			sprintf(string, "Balance: %u mV",data->usart_data.balance_mV);
+			sprintf(string, "Balance: %6u mV",data->usart_data.balance_mV);
 			graphics_print(lcdBuffer, 0, i, string);
 			i += LINE_HEIGHT;
-			sprintf(string, "Remaining: %u AH",data->usart_data.remaining_AH);
+			sprintf(string, "Remain:  %6u AH",data->usart_data.remaining_AH);
 			graphics_print(lcdBuffer, 0, i, string);
 			i += LINE_HEIGHT;
-			sprintf(string, "Current: %d A",data->usart_data.current_A);
+			sprintf(string, "Current: %6d A",data->usart_data.current_A);
 			graphics_print(lcdBuffer, 0, i, string);
 			i += LINE_HEIGHT;
-			sprintf(string, "Temperature: %u C",data->usart_data.temp_C);
+			sprintf(string, "Temp.:   %6u C",data->usart_data.temp_C);
 			graphics_print(lcdBuffer, 0, i, string);
 			i += LINE_HEIGHT;
-			sprintf(string, "Voltage: %lu mV",
+			sprintf(string, "Voltage: %6lu mV",
 				(unsigned long)data->usart_data.voltage_mV);
 			graphics_print(lcdBuffer, 0, i, string);
 			break;
